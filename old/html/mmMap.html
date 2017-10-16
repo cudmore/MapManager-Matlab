@@ -1,0 +1,1775 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>mmMap</title><meta name="generator" content="MATLAB 9.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-11"><meta name="DC.source" content="mmMap.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Public properties</a></li><li><a href="#3">Hidden properties</a></li><li><a href="#4">Hidden constant properties</a></li><li><a href="#5">Static methods</a></li><li><a href="#6">defaultPlotStruct</a></li><li><a href="#8">Public methods</a></li><li><a href="#9">mmMap</a></li><li><a href="#10">validStats</a></li><li><a href="#11">isValidStat</a></li><li><a href="#12">GetValue_NV</a></li><li><a href="#13">GetLine</a></li><li><a href="#14">LoadStacks</a></li><li><a href="#15">GetMapDynamics</a></li><li><a href="#16">GetMapValues</a></li><li><a href="#17">addUserStat</a></li><li><a href="#18">save</a></li><li><a href="#19">find</a></li><li><a href="#21">Hidden methods</a></li></ul></div><pre class="codeinput"><span class="comment">%   mmMap A class to load, pull annotations, and analyze a Map Manager map.</span>
+<span class="comment">%</span>
+<span class="comment">%   mmMap Properties:</span>
+<span class="comment">%       a - Description of a</span>
+<span class="comment">%       b - Description of b</span>
+<span class="comment">%</span>
+<span class="comment">%   mmMap Methods:</span>
+<span class="comment">%       mmMap - Construct an mmMAp from a file path</span>
+<span class="comment">%       defaultPlotStruct - Get a default plot struct</span>
+<span class="comment">%       GetMapValues - Get values of annotations across a map</span>
+
+<span class="comment">% Author: Robert Cudmore</span>
+<span class="comment">% Date: 20170927</span>
+<span class="comment">% Email: robert.cudmore@gmail.com</span>
+<span class="comment">% Website: http://www.cudmore.io/mapmanager</span>
+
+<span class="comment">% todo: write fn to return map stats for a ps (per session)</span>
+<span class="comment">% todo: [done] fn to return segment line (x,y,z)</span>
+<span class="comment">% todo: [done] fn to return image</span>
+<span class="comment">% todo: fn to return nearest-neighbor, ps.x=stat, ps.y = nn stat ([i][j] in</span>
+<span class="comment">% ps.x is 'spine', [i][j] in ps.y is nn (value).</span>
+<span class="comment">% todo: [done] return map nv (days, hours, etc) for plotting. add example</span>
+<span class="comment">% todo: Add ps.stipEmptyRows and have GetMapValues() strip rows</span>
+<span class="comment">%   based on final ps.stackdbIdx</span>
+<span class="comment">% todo: Switch ps.y and ps.x to (ps.val, ps.sessionIndex, ps.stackdbIdx)</span>
+
+<span class="keyword">classdef</span> mmMap
+</pre><h2 id="2">Public properties</h2><pre class="codeinput">    properties
+        mapName <span class="comment">% Name of the map, same as enclosing folder name</span>
+        mapPath <span class="comment">% Path to map folder used in constructor</span>
+
+        numChannels
+        numSessions <span class="comment">% Number of sessions in the map</span>
+        numSegments <span class="comment">% Number of segments in the map</span>
+
+        stackdb <span class="comment">% Array of table with annotation values.</span>
+        int1 <span class="comment">% Array of table with annotation values.</span>
+        int2 <span class="comment">% Array of table with annotation values.</span>
+        int3 <span class="comment">% Array of table with annotation values.</span>
+        linedb <span class="comment">% Array of table with segment line values.</span>
+<span class="comment">%todo: decide what to do here, LoadStacks() RETURNS images does not set obj.images</span>
+        images <span class="comment">% Array of 3D stack images. Loaded with LoadStacks()</span>
+
+        userStats <span class="comment">% Array of table, can be filled in with addUserStat()</span>
+
+        mapNV <span class="comment">% Text table of map, rows are labelled with names, columns are sessions</span>
+
+        <span class="comment">% Each row gives stack db centric indices of connected run of annotations.</span>
+        <span class="comment">% Columns are sessions.</span>
+        <span class="comment">% objectRunMap(i,j) gives stack db centric index of spine in session j.</span>
+        <span class="comment">% Number of runs (rows) has no intrinsic meaning, it is dependent on</span>
+        <span class="comment">% how objects are connected (e.g. their dynamics).</span>
+        objectRunMap
+
+        <span class="comment">% Same story as objectRunMap but gives information for connectivity</span>
+        <span class="comment">% of segments.</span>
+        segmentRunMap
+
+        loadTime <span class="comment">% bookkeeping, time it took to load the map</span>
+    <span class="keyword">end</span>
+</pre><h2 id="3">Hidden properties</h2><pre class="codeinput">    properties (Hidden=true)
+        objectMap <span class="comment">% 3D 0 based int, rows are runs, columns are sessions</span>
+        objectMapPages <span class="comment">% names of the 3rd dimension into objectMap</span>
+
+        segmentMap <span class="comment">% 3D 0 based int, rows are runs, columns are sessions</span>
+        segmentMapPages <span class="comment">% names of the 3rd dimension into segmentMap</span>
+
+        stackdbTokens <span class="comment">% todo: get rid of this</span>
+        intTokens <span class="comment">% todo: get rid of this</span>
+    <span class="keyword">end</span>
+</pre><h2 id="4">Hidden constant properties</h2><pre class="codeinput">    properties (Hidden=true, Constant)
+        <span class="comment">% object and segment map are 3d with names pages/slices</span>
+        <span class="comment">% {'idx'},{'next'},{'nextTP'},{'prev'},{'prevTP'},{'blank'},{'runIdx'},{'dynType'},{'forced'} {'nodeType'},{'segmentID'},{'splitIdx'}</span>
+        <span class="comment">% todo: finish this and use these constants in code</span>
+        kRunIdx = 7; <span class="comment">% specifies runIdx slice into objectMap and segmentMap</span>
+    <span class="keyword">end</span>
+</pre><h2 id="5">Static methods</h2><pre class="codeinput">    methods (Static=true)
+</pre><h2 id="6">defaultPlotStruct</h2><pre class="codeinput">        <span class="keyword">function</span> ps = defaultPlotStruct()
+            <span class="comment">% defaultPlotStruct Get a default plot struct used in plotting functions</span>
+            <span class="comment">%   ps = mmMap.defaultPlotStruct()</span>
+            <span class="comment">% Returns:</span>
+            <span class="comment">%   ps.roitype (str) : Map Manager ROI type, one of {'spineROI', 'otherROI'}</span>
+            <span class="comment">%   ps.stat (str) : The name of the stat, check if name is valid with xxx()</span>
+            <span class="comment">%   ps.stattype (str) : '' to infer type as one of {'stackdb', 'int1', 'int2', 'int3'}</span>
+            <span class="comment">%   ps.channel = (int) : For int stat type, range is [1:numChannels]</span>
+            <span class="comment">%   ps.session = (int) : Session index [1..numSessions] for a single session, NaN for all</span>
+            <span class="comment">%   ps.mapsegment = (int) : Map segment index, NaN for all</span>
+            <span class="comment">%   ps.plotbad = false;</span>
+            <span class="comment">%   ps.plotintbad = false;</span>
+            <span class="comment">%   ps.ploterrorwarning = false;</span>
+            <span class="comment">% Examples:</span>
+            <span class="comment">%   ps = mmMap.defaultPlotStruct()</span>
+            <span class="comment">%   ps = myMap.defaultPlotStruct()</span>
+            <span class="comment">% Notes:</span>
+            <span class="comment">%   - Additional fields are filled in and returnd by plot</span>
+            <span class="comment">%   functions GetMapValues(ps).</span>
+            <span class="comment">%   - This method is static and will work the same in the two</span>
+            <span class="comment">%   examples above.</span>
+
+            ps.roitype = <span class="string">'spineROI'</span>; <span class="comment">% (str) : Map Manager ROI type, one of {'spineROI', 'otherROI'}</span>
+
+            ps.stat = <span class="string">''</span>; <span class="comment">% (str) : The name of the stat, check if name is valid with xxx()</span>
+            ps.stattype = <span class="string">''</span>; <span class="comment">% (str) : '' to infer type as one of {'stackdb', 'int1', 'int2', 'int3'}</span>
+            ps.channel = 1; <span class="comment">% (int) : For int stat type, range is [1:numChannels]</span>
+
+            ps.session = NaN; <span class="comment">% (int) : Session index [1..numSessions] for a single session, NaN for all</span>
+            ps.mapsegment = NaN; <span class="comment">% (int) : Map segment index, NaN for all</span>
+
+            ps.plotbad = false;
+            ps.plotintbad = false;
+            ps.ploterrorwarning = false;
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span> <span class="comment">% methods (static)</span>
+</pre><h2 id="8">Public methods</h2><pre class="codeinput">    methods
+</pre><h2 id="9">mmMap</h2><pre class="codeinput">        <span class="keyword">function</span> obj = mmMap(mapPath)
+        <span class="comment">% mmMap Constructor</span>
+        <span class="comment">%   myMap = mmMap(mapPath)</span>
+        <span class="comment">% Parameters:</span>
+        <span class="comment">%   mapPath (str): Full path to Map Manager map folder</span>
+
+            startTime = clock;
+
+            <span class="comment">% strip off trailing '/'</span>
+            <span class="keyword">if</span> endsWith(mapPath,<span class="string">'/'</span>)
+                mapPath = mapPath(1,strlength(mapPath)-1);
+            <span class="keyword">end</span>
+
+            obj.mapPath = mapPath;
+            [parentFolder,obj.mapName] = fileparts(mapPath);
+
+            stackdbPath = fullfile(mapPath,<span class="string">'stackdb'</span>);
+            linePath = fullfile(mapPath,<span class="string">'line'</span>);
+
+            mapnvFile = strcat(obj.mapName,<span class="string">'.txt'</span>);
+            mapnvPath = fullfile(mapPath,mapnvFile);
+            <span class="keyword">if</span> ~(exist(mapnvPath, <span class="string">'file'</span>)==2)
+                error([<span class="string">'mmMap did not find main map file:'</span> mapnvPath])
+            <span class="keyword">end</span>
+
+            obj.mapNV = readtable(mapnvPath, <span class="string">'Delimiter'</span>, <span class="string">'\t'</span>, <span class="string">'ReadRowNames'</span>, true); <span class="comment">%, 'TreatAsEmpty', 'N/A');</span>
+
+            n = size(obj.mapNV,2);
+            obj.numSessions = 0;
+            obj.numChannels = 1; <span class="comment">% we will always have at least one channel</span>
+            <span class="comment">% step through each column and get stack names into /stackdb/ folder</span>
+            <span class="keyword">for</span> j = 1:n
+                <span class="comment">% we can't use GetValue_NV() because it error checks on</span>
+                <span class="comment">% obj.numSessions and it is not assigned yet</span>
+                <span class="comment">%stackname = obj.GetValue_NV('hsStack',j);</span>
+                stackname = char(obj.mapNV{<span class="string">'hsStack'</span>,j});
+                <span class="keyword">if</span> ~isempty(stackname) &amp;&amp; ~strcmp(stackname,char(NaN))
+                    <span class="comment">%{j obj.numSessions stackname}</span>
+                    obj.numSessions = obj.numSessions + 1;
+
+                    stackname = obj.stripchannel_(stackname);
+                    stackdbFile = strcat(stackname, <span class="string">'_db2.txt'</span>);
+                    stackdbFilePath = fullfile(stackdbPath, stackdbFile);
+
+                    lineFile = strcat(stackname, <span class="string">'_l.txt'</span>);
+                    lineFilePath = fullfile(linePath, lineFile);
+
+                    int1File = strcat(stackname, <span class="string">'_int1.txt'</span>);
+                    int1FilePath = fullfile(stackdbPath, int1File);
+
+                    int2File = strcat(stackname, <span class="string">'_int2.txt'</span>);
+                    int2FilePath = fullfile(stackdbPath, int2File);
+
+                    int3File = strcat(stackname, <span class="string">'_int3.txt'</span>);
+                    int3FilePath = fullfile(stackdbPath, int3File);
+
+                    userFile = strcat(stackname, <span class="string">'_user.txt'</span>);
+                    userFilePath = fullfile(stackdbPath, userFile);
+
+                    <span class="keyword">if</span> exist(stackdbFilePath, <span class="string">'file'</span>) == 2
+                        obj.stackdb{j} = readtable(stackdbFilePath, <span class="string">'Delimiter'</span>, <span class="string">','</span>, <span class="string">'TreatAsEmpty'</span>, <span class="string">'NA'</span>);
+
+                        <span class="comment">%bug: need to convert all stackdb{:} (note, error, warning) to text</span>
+                        <span class="comment">% when one of these is empty it is coming in as NaN</span>
+                        <span class="keyword">if</span> iscellstr(obj.stackdb{j}.note)
+                            <span class="comment">% OK</span>
+                        <span class="keyword">else</span>
+                            <span class="comment">%{j 'note was NaN and is now cell array'}</span>
+                            obj.stackdb{j}.note = num2cell(obj.stackdb{j}.note);
+                        <span class="keyword">end</span>
+                        <span class="keyword">if</span> iscellstr(obj.stackdb{j}.error)
+                            <span class="comment">% OK</span>
+                        <span class="keyword">else</span>
+                            <span class="comment">%{j 'error was NaN and is now cell array'}</span>
+                            obj.stackdb{j}.error = num2cell(obj.stackdb{j}.error);
+                        <span class="keyword">end</span>
+                        <span class="keyword">if</span> iscellstr(obj.stackdb{j}.warning)
+                            <span class="comment">% OK</span>
+                        <span class="keyword">else</span>
+                            <span class="comment">%{j 'warning was NaN and is now cell array'}</span>
+                            obj.stackdb{j}.warning = num2cell(obj.stackdb{j}.warning);
+                        <span class="keyword">end</span>
+
+                        <span class="comment">% fix Idx, it is out of order in map manager file</span>
+                        <span class="comment">% (not used in map manager)</span>
+                        mStack = size(obj.stackdb{j},1);
+                        obj.stackdb{j}.Idx = (1:mStack)';
+
+                        <span class="keyword">if</span> j==1
+                            obj.stackdbTokens = obj.stackdb{j}.Properties.VariableNames;
+                        <span class="keyword">end</span>
+                    <span class="keyword">else</span>
+                        error([<span class="string">'mmMap did not find stack db file:'</span> stackdbFilePath])
+                    <span class="keyword">end</span>
+
+                    <span class="keyword">if</span> exist(lineFilePath, <span class="string">'file'</span>) == 2
+                        fid = fopen(lineFilePath);
+                        lineHeader = fgetl(fid);
+                        fclose(fid);
+                        lineHeader = strsplit(lineHeader, <span class="string">';'</span>);
+                        numberOfHeaderRows = 0;
+                        <span class="keyword">for</span> i = 1:length(lineHeader)
+                            nameValue = strsplit(lineHeader{i},<span class="string">'='</span>);
+                            <span class="keyword">if</span> strcmp(nameValue{1},<span class="string">'numHeaderRow'</span>)
+                                numberOfHeaderRows = str2num(nameValue{2});
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span> <span class="comment">% for</span>
+                        linesToSkip = numberOfHeaderRows + 2;
+                        obj.linedb{j} = readtable(lineFilePath, <span class="string">'Delimiter'</span>, <span class="string">','</span>, <span class="string">'HeaderLines'</span>, linesToSkip);
+                    <span class="keyword">else</span>
+                        <span class="comment">% OK, sometimes we don't have a line</span>
+                    <span class="keyword">end</span>
+
+                    <span class="keyword">if</span> exist(int1FilePath, <span class="string">'file'</span>) == 2
+                        obj.int1{j} = readtable(int1FilePath, <span class="string">'Delimiter'</span>, <span class="string">','</span>);
+                        <span class="keyword">if</span> j==1
+                            obj.intTokens = obj.int1{j}.Properties.VariableNames;
+                        <span class="keyword">end</span>
+                    <span class="keyword">else</span>
+                        error([<span class="string">'mmMap did not find int1 file'</span> int1FilePath])
+                    <span class="keyword">end</span>
+
+                    <span class="keyword">if</span> exist(int2FilePath, <span class="string">'file'</span>) == 2
+                        obj.int2{j} = readtable(int2FilePath, <span class="string">'Delimiter'</span>, <span class="string">','</span>);
+                        <span class="keyword">if</span> j==1
+                            obj.numChannels = 2;
+                        <span class="keyword">end</span>
+                    <span class="keyword">else</span>
+                        <span class="comment">% OK</span>
+                    <span class="keyword">end</span>
+
+                    <span class="keyword">if</span> exist(int3FilePath, <span class="string">'file'</span>) == 2
+                        obj.int3{j} = readtable(int3FilePath, <span class="string">'Delimiter'</span>, <span class="string">','</span>);
+                        <span class="keyword">if</span> j==1
+                            obj.numChannels = 3;
+                        <span class="keyword">end</span>
+                    <span class="keyword">else</span>
+                        <span class="comment">% OK</span>
+                    <span class="keyword">end</span>
+
+                    <span class="keyword">if</span> exist(userFilePath, <span class="string">'file'</span>) == 2
+                        obj.userStats{j} = readtable(userFilePath, <span class="string">'Delimiter'</span>, <span class="string">','</span>);
+                    <span class="keyword">else</span>
+                        <span class="comment">% make a userStats table</span>
+                        <span class="comment">% append to this table with addUserStat()</span>
+                        mStack = size(obj.stackdb{j},1);
+                        unity = 1:mStack;
+                        unity = unity';
+                        obj.userStats{j} = table(unity);
+                        obj.userStats{j}.Properties.VariableNames = {<span class="string">'Idx'</span>};
+                    <span class="keyword">end</span>
+
+                <span class="keyword">end</span> <span class="comment">% stackname not empty</span>
+            <span class="keyword">end</span> <span class="comment">% j sessions</span>
+
+            <span class="comment">% load object map</span>
+            mapfilepath = [obj.mapPath <span class="string">'/'</span> obj.mapName <span class="string">'_objMap.txt'</span>];
+            <span class="keyword">if</span> exist(mapfilepath, <span class="string">'file'</span>) == 2
+                [obj.objectMap, obj.objectMapPages] = obj.loadMapFile_(mapfilepath);
+                obj.objectRunMap = obj.makeRunMap_(obj.objectMap, <span class="string">'spineROI'</span>, 1, 1);
+            <span class="keyword">else</span>
+                error([<span class="string">'mmMap did not find object map:'</span> mapfilepath])
+            <span class="keyword">end</span>
+
+            <span class="comment">% load segment map</span>
+            mapfilepath = [obj.mapPath <span class="string">'/'</span> obj.mapName <span class="string">'_segMap.txt'</span>];
+            <span class="keyword">if</span> exist(mapfilepath, <span class="string">'file'</span>) == 2
+                [obj.segmentMap, obj.segmentMapPages] = obj.loadMapFile_(mapfilepath);
+                obj.segmentRunMap = obj.makeRunMap_(obj.segmentMap, <span class="string">''</span>, 0, 0);
+                obj.numSegments = size(obj.segmentRunMap,1);
+            <span class="keyword">end</span>
+
+            obj.loadTime = etime(clock,startTime);
+            sprintf(<span class="string">'Loaded map %s in %f seconds'</span>, obj.mapName, obj.loadTime)
+
+        <span class="keyword">end</span> <span class="comment">% mmMap() constructor</span>
+
+<span class="comment">% todo: finish this funciton</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in mmMap (line 136)
+            if endsWith(mapPath,'/')
+</pre><h2 id="10">validStats</h2><pre class="codeinput">        <span class="keyword">function</span> [validStats, validTypes] = validStats(obj)
+        <span class="comment">% Return a cell array of valid stat names</span>
+
+            <span class="comment">% get column tokens with</span>
+            <span class="comment">% obj.stackdb{j}.Properties.VariableNames</span>
+
+            <span class="comment">% strcat does not work like this !!!</span>
+            validStats = strcat(obj.stackdbTokens, obj.stackdbTokens);
+            validTypes = <span class="string">''</span>
+        <span class="keyword">end</span>
+</pre><h2 id="11">isValidStat</h2><pre class="codeinput">        <span class="keyword">function</span> [valid, type] = isValidStat(obj, stat)
+        <span class="comment">% Return true if stat is a valid stat</span>
+        <span class="comment">%   [valid, type] = myMap.isValidStat(stat)</span>
+        <span class="comment">% Parameters:</span>
+        <span class="comment">%   stat (str) :</span>
+        <span class="comment">% Returns:</span>
+        <span class="comment">%   valid (boolean) :</span>
+        <span class="comment">%   type (str) : one of ('stackdb', 'int'), '' if ~valid</span>
+            isStackdb = ismember(stat, obj.stackdbTokens);
+            isInt = ismember(stat, obj.intTokens);
+            <span class="keyword">if</span> isStackdb || isInt
+                <span class="comment">% ok</span>
+                valid = true;
+                <span class="keyword">if</span> isStackdb
+                    type = <span class="string">'stackdb'</span>;
+                <span class="keyword">elseif</span> isInt
+                    type = <span class="string">'int'</span>;
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                <span class="comment">% error</span>
+                valid = false;
+                type = <span class="string">''</span>;
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2 id="12">GetValue_NV</h2><pre class="codeinput">        <span class="keyword">function</span> s = GetValue_NV(obj, name, session)
+        <span class="comment">% Get value from a session in a map</span>
+        <span class="comment">%   s = myMap.GetValue_NV(name, session)</span>
+        <span class="comment">% Parameters:</span>
+        <span class="comment">%   name (string) : Name of row token into myMap.mapNV</span>
+        <span class="comment">%   session (int) :</span>
+        <span class="comment">% Returns:</span>
+        <span class="comment">%   s (str) : Use str2num(s) if getting a number</span>
+        <span class="comment">% Examples:</span>
+        <span class="comment">%   voxelx = str2num(map.GetValue_NV('dx',2))</span>
+        <span class="comment">%   voxely = str2num(map.GetValue_NV('dy',2))</span>
+        <span class="comment">%   voxelz = str2num(map.GetValue_NV('dz',2))</span>
+        <span class="comment">%   sessionCondition = map.GetValue_NV('condStr',2)</span>
+
+            <span class="comment">% check that name is a row name</span>
+            <span class="keyword">if</span> ~ismember(obj.mapNV.Properties.RowNames, name)
+                error([<span class="string">'error: GetValue_NV() did not find row named '''</span> name <span class="string">''' in obj.mapNV'</span>])
+            <span class="keyword">end</span>
+
+            <span class="comment">% check that session is valid</span>
+            <span class="keyword">if</span> session&gt;obj.numSessions
+                error([<span class="string">'error: GetValue_NV() got out of bounds session '''</span> num2str(session) <span class="string">''' valid range is [1:'</span> num2str(obj.numSessions) <span class="string">']'</span>])
+            <span class="keyword">end</span>
+
+            s = char(obj.mapNV{name,session});
+
+            <span class="comment">% don't return ' '</span>
+            <span class="keyword">if</span> s == <span class="string">' '</span>
+                s = <span class="string">''</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2 id="13">GetLine</h2><pre class="codeinput">        <span class="keyword">function</span> ps = GetLine(obj, ps)
+        <span class="comment">% Get (x,y,z) of a segment tracing</span>
+        <span class="comment">%   ps = myMap.GetLine(ps)</span>
+        <span class="comment">% Parameters:</span>
+        <span class="comment">%   ps.session (int) : session number to get</span>
+        <span class="comment">%   ps.mapsegment (int) : map segment to get, NaN for all</span>
+        <span class="comment">% Returns:</span>
+        <span class="comment">%   ps.line (2D matrix) : Rows are points in tracing</span>
+        <span class="comment">%       Columns 1/2/3 are x/y/z respectively</span>
+        <span class="comment">%       Units for x/y are um</span>
+        <span class="comment">%       Units for z are slices</span>
+
+            m = size(obj.linedb{ps.session},1);
+            n = 3;
+            ps.line = NaN(m,n);
+
+            <span class="keyword">if</span> ps.mapsegment &gt;= 0
+                theseRows = obj.linedb{ps.session}.ID(:) == ps.mapsegment;
+            <span class="keyword">else</span>
+                theseRows = ~isnan(obj.linedb{ps.session}.ID(:));
+            <span class="keyword">end</span>
+
+            ps.line(theseRows,1) = obj.linedb{ps.session}.x(theseRows);
+            ps.line(theseRows,2) = obj.linedb{ps.session}.y(theseRows);
+            ps.line(theseRows,3) = obj.linedb{ps.session}.z(theseRows);
+
+        <span class="keyword">end</span>
+</pre><h2 id="14">LoadStacks</h2><pre class="codeinput">        <span class="keyword">function</span> ps = LoadStacks(obj,ps)
+        <span class="comment">% Load images for a stack for a session</span>
+        <span class="comment">%   ps = myMapLoadStacks(ps)</span>
+        <span class="comment">% Parameters:</span>
+        <span class="comment">%   ps.sessions (int) : Session to load</span>
+        <span class="comment">%   ps.channel (int) : Image channel to load</span>
+        <span class="comment">% Returns:</span>
+        <span class="comment">%   ps.images{ps.session}</span>
+
+            numSlices = str2num(obj.GetValue_NV(<span class="string">'pz'</span>,ps.session));
+            stackname = obj.GetValue_NV(<span class="string">'hsStackNV'</span>,ps.session);
+            chStr = [<span class="string">'_ch'</span> string(ps.channel)];
+            stackFile = [stackname chStr <span class="string">'.tif'</span>];
+            stackPath = strjoin([obj.mapPath <span class="string">'/'</span> <span class="string">'raw'</span> <span class="string">'/'</span> stackFile], <span class="string">''</span>);
+            stackPath = char(stackPath);
+            <span class="comment">% question: I want images to be part of mmMap object</span>
+            <span class="comment">% This seems to require obj = obj.LoadStacks(ps)</span>
+            <span class="comment">% not sure if this is a good idea as we are making extra copies ? slow?</span>
+            <span class="comment">%obj.images{ps.session} = imread(stackPath);</span>
+
+<span class="comment">%bug: this will only hold the last channel load, fix this</span>
+            <span class="comment">% question: can I read a multi-page tiff with one command?</span>
+            <span class="keyword">for</span> slice = 1:numSlices
+                ps.images{ps.session}(:,:,slice) = imread(stackPath, slice);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2 id="15">GetMapDynamics</h2><pre class="codeinput">        <span class="keyword">function</span> ps = GetMapDynamics(obj, ps)
+        <span class="comment">% Get map dynamics</span>
+        <span class="comment">%   ps = myMap.GetMapDynamics(ps)</span>
+        <span class="comment">% Parameters:</span>
+        <span class="comment">%</span>
+        <span class="comment">% Returns:</span>
+        <span class="comment">%   ps.added (2D matrix of boolean) :</span>
+        <span class="comment">%   ps.addedRuns (2D matrix of boolean) :</span>
+        <span class="comment">%   ps.subtracted (2D matrix of boolean) :</span>
+        <span class="comment">%   ps.subtractedRuns (2D matrix of boolean) :</span>
+        <span class="comment">%   ps.transient (2D matrix of boolean) :</span>
+        <span class="comment">%   ps.alwaysPresent (2D matrix of boolean) :</span>
+
+            <span class="comment">%</span>
+            <span class="comment">% todo: use main getmapvalues to get valid candidates based on</span>
+            <span class="comment">% (roiType, bad, etc)</span>
+            <span class="comment">% todo: [done] expand this to take ps and return</span>
+            <span class="comment">%   all dynamics (add, sub, tran, addrun, subrun)</span>
+            [m,n] = size(obj.objectRunMap);
+            ps.added = nan(m,n);
+            ps.addedRuns = nan(m,n);
+            ps.subtracted = nan(m,n);
+            ps.subtractedRuns = nan(m,n);
+            ps.transient = nan(m,n);
+            ps.alwaysPresent = nan(m,n);
+            ps.x = nan(m,n);
+            <span class="keyword">for</span> i = 1:m <span class="comment">% runs</span>
+                isAdded = 0;
+                jSubtracted = nan;
+                <span class="keyword">for</span> j = 1:n <span class="comment">% sessions</span>
+                    <span class="keyword">if</span> isnan(obj.objectRunMap(i,j))
+                        <span class="keyword">continue</span>
+                    <span class="keyword">end</span>
+                    <span class="comment">%case 'added'</span>
+                    <span class="keyword">if</span> j&gt;1 &amp;&amp; isnan(obj.objectRunMap(i,j-1))
+                        ps.added(i,j) = 1;
+                    <span class="keyword">end</span>
+                    <span class="comment">%case 'added run'</span>
+                    <span class="keyword">if</span> j&gt;1 &amp;&amp; isnan(obj.objectRunMap(i,j-1))
+                        ps.addedRuns(i,j) = 1;
+                        isAdded = 1;
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> isAdded
+                        ps.addedRuns(i,j) = 1;
+                    <span class="keyword">end</span>
+                    <span class="comment">%case 'subtracted'</span>
+                    <span class="keyword">if</span> j&lt;n &amp;&amp; isnan(obj.objectRunMap(i,j+1))
+                        ps.subtracted(i,j) = 1;
+                    <span class="keyword">end</span>
+                    <span class="comment">%case 'subtracted run'</span>
+                    <span class="keyword">if</span> j&lt;n &amp;&amp; isnan(obj.objectRunMap(i,j+1))
+                        ps.subtractedRuns(i,j) = 1;
+                        jSubtracted = j;
+                    <span class="keyword">end</span>
+                    <span class="comment">%case 'transient'</span>
+                    <span class="keyword">if</span> j&gt;1 &amp;&amp; j&lt;n &amp;&amp; isnan(obj.objectRunMap(i,j-1)) &amp;&amp; isnan(obj.objectRunMap(i,j+1))
+                        ps.transient(i,j) = 1;
+                        <span class="comment">% break</span>
+                    <span class="keyword">end</span>
+                    <span class="comment">%case 'always present'</span>
+                    <span class="keyword">if</span> isnan(obj.objectRunMap(i,j))
+                        <span class="comment">% not 'always present'</span>
+                        ps.alwaysPresent(i,:) = 0;
+                        <span class="keyword">break</span>
+                    <span class="keyword">else</span>
+                        ps.alwaysPresent(i,j) = 1;
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> ~isnan(jSubtracted) <span class="comment">%&amp;&amp; cmpstr(thisType,'subtracted run')</span>
+                        ps.subtractedRun(i,1:jSubtracted) = 1;
+                    <span class="keyword">end</span>
+                    ps.x(i,j) = j;
+                <span class="keyword">end</span> <span class="comment">% j = 1:n sessions</span>
+            <span class="keyword">end</span> <span class="comment">% i = 1:m runs</span>
+        <span class="keyword">end</span>
+</pre><h2 id="16">GetMapValues</h2><pre class="codeinput">        <span class="keyword">function</span> ps = GetMapValues(obj, ps)
+        <span class="comment">%GetMapValues Get values of annotations from a map.</span>
+        <span class="comment">%   Syntax:</span>
+        <span class="comment">%       ps = myMap.GetMapValues(ps)</span>
+        <span class="comment">%   Parameters:</span>
+        <span class="comment">%       ps (Struct) : Use mmMap.defaultPlotStruct() to get template</span>
+        <span class="comment">%       ps.roitype (str) :</span>
+        <span class="comment">%       ps.channel (int) : Uses for stat type 'int'</span>
+        <span class="comment">%       ps.mapSegment (int) :</span>
+        <span class="comment">%       ps.plotBad (boolean) :</span>
+        <span class="comment">%       ps.plotintbad (boolean) :</span>
+        <span class="comment">%       ps.ploterrorwarning (boolean) :</span>
+        <span class="comment">%   Returns:</span>
+        <span class="comment">%       ps.y (2D matrix of float) :</span>
+        <span class="comment">%       ps.x (2D matrix of float) :</span>
+        <span class="comment">%       ps.days (2D matrix of float) :</span>
+        <span class="comment">%   Examples:</span>
+        <span class="comment">%       ps = mmMap.defaultPlotStruct();</span>
+        <span class="comment">%       ps.stat = 'ubssSum';</span>
+        <span class="comment">%       ps.channel = 2;</span>
+        <span class="comment">%       ps = myMap.GetMapValues(ps);</span>
+        <span class="comment">%       plot(ps.x, ps.y, 'ok'); % plot ubssSum versus session</span>
+        <span class="comment">%       plot(ps.days, ps.y, 'ok'); % plot ubssSum versus days</span>
+
+            [m,n] = size(obj.objectRunMap);
+
+            yVal = NaN(m,n);
+            xVal = NaN(m,n); <span class="comment">% just session for now</span>
+            ps.days = NaN(m,n);
+
+            runIdx = 7;
+
+            <span class="comment">% todo: put this into function_</span>
+            <span class="keyword">if</span> ps.stattype
+                stattype = ps.stattype;
+            <span class="keyword">else</span>
+                stattype = obj.getStatType_(ps.stat, 1);
+            <span class="keyword">end</span>
+
+            <span class="keyword">for</span> j = 1:n <span class="comment">% sessions</span>
+                mStack = size(obj.stackdb{j},1);
+                allOnes = ones(mStack,1);
+
+                <span class="comment">% spineROI</span>
+                <span class="keyword">if</span> ps.roitype
+                    spineROI_rhs = ismember(obj.stackdb{j}.roiType, {ps.roitype});
+                <span class="keyword">else</span>
+                    spineROI_rhs = allOnes;
+                <span class="keyword">end</span>
+<span class="comment">% todo: need to use segment map</span>
+                <span class="comment">% parent segment</span>
+                <span class="keyword">if</span> ps.mapsegment &gt;= 0
+                    mapsegment_rhs = obj.stackdb{j}.parentID(:) == ps.mapsegment;
+                <span class="keyword">else</span>
+                    mapsegment_rhs = allOnes;
+                <span class="keyword">end</span>
+                <span class="comment">% not isBad</span>
+                <span class="keyword">if</span> ps.plotbad
+                    isGood_rhs = allOnes;
+                <span class="keyword">else</span>
+                    isGood_rhs = ~(obj.stackdb{j}.isBad(:) == 1);
+                <span class="keyword">end</span>
+                <span class="comment">% not intBad</span>
+                <span class="keyword">if</span> ps.plotintbad
+                    isIntGood_rhs = allOnes;
+                <span class="keyword">else</span>
+                    isIntGood_rhs = ~(obj.stackdb{j}.intBad(:) == 1);
+                <span class="keyword">end</span>
+
+<span class="comment">% todo: check this</span>
+<span class="comment">% todo: should we ignore warnings?</span>
+                <span class="comment">% errors and warnings (from intensity analysis)</span>
+errorWarning_rhs = allOnes;
+<span class="comment">%                 if ps.ploterrorwarning</span>
+<span class="comment">%                     errorWarning_rhs = allOnes;</span>
+<span class="comment">%                 else</span>
+<span class="comment">%                     % todo: FIX</span>
+<span class="comment">%                     if iscellstr(obj.stackdb{j}{:,'error'})</span>
+<span class="comment">%                         errorWarning_rhs = ~ismember(obj.stackdb{j}.error, {''});</span>
+<span class="comment">%                     else</span>
+<span class="comment">%                         %was not cellstr, probably no errors and it defaulted to nan</span>
+<span class="comment">%                         errorWarning_rhs = allOnes;</span>
+<span class="comment">%                     end</span>
+<span class="comment">%                 end</span>
+
+                final_rhs = spineROI_rhs &amp; mapsegment_rhs &amp; isGood_rhs &amp; isIntGood_rhs &amp; errorWarning_rhs;
+                final_lhs = obj.objectMap(final_rhs,j,runIdx);
+
+                <span class="comment">% pull the stat</span>
+                <span class="keyword">switch</span> (stattype)
+                    <span class="keyword">case</span> <span class="string">'stackdb'</span>
+                        yVal(final_lhs,j) = table2array(obj.stackdb{j}(final_rhs,{ps.stat}));
+                    <span class="keyword">case</span> <span class="string">'int'</span>
+                        <span class="keyword">switch</span> ps.channel
+                            <span class="keyword">case</span> 1
+                                yVal(final_lhs,j) = table2array(obj.int1{j}(final_rhs,{ps.stat}));
+                            <span class="keyword">case</span> 2
+                                yVal(final_lhs,j) = table2array(obj.int2{j}(final_rhs,{ps.stat}));
+                            <span class="keyword">case</span> 3
+                                yVal(final_lhs,j) = table2array(obj.int3{j}(final_rhs,{ps.stat}));
+                        <span class="keyword">end</span>
+                    <span class="keyword">case</span> <span class="string">'userstat'</span>
+                        yVal(final_lhs,j) = table2array(obj.userStats{j}(final_rhs,{ps.stat}));
+                <span class="keyword">end</span>
+
+                xVal(final_lhs,j) = j;
+
+                thisDay = str2num(obj.GetValue_NV(<span class="string">'days'</span>,j));
+                ps.days(final_lhs,j) = thisDay;
+            <span class="keyword">end</span> <span class="comment">% j sessions</span>
+
+            ps.x = xVal;
+            ps.y = yVal;
+            <span class="comment">%ps.days = days</span>
+        <span class="keyword">end</span>
+</pre><h2 id="17">addUserStat</h2><pre class="codeinput">        <span class="keyword">function</span> obj = addUserStat(obj, newStatName, newStatValues)
+        <span class="comment">% Add a user stat to map</span>
+        <span class="comment">%   myMap = myMap.addUserStat(newStatName, newStatValues)</span>
+        <span class="comment">% Arguments:</span>
+        <span class="comment">%   newStatName (str) : Name of stat to add</span>
+        <span class="comment">%   newStatValues (2D matrix of float) : Same shape as ps.y</span>
+        <span class="comment">% Returns:</span>
+        <span class="comment">%   Assigns obj.userStat{:}(:,{stat})</span>
+        <span class="comment">% Note:</span>
+        <span class="comment">%   This function is changing myMap.userStat, you must use</span>
+        <span class="comment">%   assignment like:</span>
+        <span class="comment">%       myMap = myMap.addUserStat(newStatName, newStatValues)</span>
+        <span class="comment">% Example:</span>
+        <span class="comment">%   ps = mmMap.defaultPlotStruct();</span>
+        <span class="comment">%   ps.stat = 'pDist';</span>
+        <span class="comment">%   ps = obj.GetMapValues(ps);</span>
+        <span class="comment">%   newStatName = 'myNewStat';</span>
+        <span class="comment">%   newStatValues = ps.y + 100;</span>
+        <span class="comment">%   myMap = myMap.addUserStat(newStatName, newStatValues)</span>
+
+        <span class="comment">% todo: I don't like returning obj, there does not seem to be any</span>
+        <span class="comment">% way to pass by reference?</span>
+
+            <span class="comment">% todo: make sure newStatValues is correct shape</span>
+
+            <span class="comment">% check that stat is not already a column</span>
+            failOnError = 0;
+            newStatType = obj.getStatType_(newStatName, failOnError);
+
+            <span class="keyword">if</span> ~strcmp(newStatType,<span class="string">''</span>)
+               <span class="comment">%[newStatName ' is already a column in userStats']</span>
+            <span class="keyword">else</span>
+                <span class="comment">% expand all obj.userStats{:} to include new column named</span>
+                <span class="comment">% 'stat' and with values of NaN</span>
+
+                <span class="keyword">for</span> j = 1:obj.numSessions
+                    mStack = size(obj.stackdb{j},1);
+                    <span class="comment">% make a new table and concatenate to existing</span>
+                    newTable = table(NaN(mStack,1));
+                    newTable.Properties.VariableNames = {newStatName};
+                    obj.userStats{j} = [obj.userStats{j} newTable];
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+
+            <span class="comment">% fill in table for each session with values from userMatrix(:,j)</span>
+            <span class="keyword">for</span> j = 1:obj.numSessions
+                goodCol = ~isnan(obj.objectRunMap(:,j));
+                lhs_index = obj.objectRunMap(goodCol,j);
+                obj.userStats{j}{:,newStatName} = NaN; <span class="comment">% clear existing</span>
+                obj.userStats{j}(lhs_index,newStatName) = array2table(newStatValues(goodCol,j));
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+</pre><h2 id="18">save</h2><pre class="codeinput">        <span class="keyword">function</span> save(obj)
+        <span class="comment">% Save the map</span>
+        <span class="comment">% The only thing we save is userStats added with addUserStat()</span>
+
+            <span class="keyword">for</span> j = 1:obj.numSessions
+                stackdbPath = fullfile(obj.mapPath,<span class="string">'stackdb'</span>);
+                stackname = obj.GetValue_NV(<span class="string">'hsStack'</span>,j);
+                stackname = obj.stripchannel_(stackname);
+                userStatsFile = strcat(stackname, <span class="string">'_user.txt'</span>);
+                userStatsFilePath = fullfile(stackdbPath, userStatsFile);
+
+                writetable(obj.userStats{j}, userStatsFilePath);
+                <span class="comment">%['Saved userStats to ' userStatsFilePath]</span>
+            <span class="keyword">end</span> <span class="comment">% j sessions</span>
+        <span class="keyword">end</span>
+</pre><h2 id="19">find</h2><pre class="codeinput">        <span class="keyword">function</span> t = find(obj, stat, findStr)
+        <span class="comment">% find findStr in map stack db</span>
+            t = table();
+            <span class="comment">%t.Properties.VariableNames = {'session'};</span>
+            <span class="keyword">for</span> j = 1:obj.numSessions
+                <span class="keyword">if</span> iscellstr(obj.stackdb{j}{:,stat}) <span class="comment">% if no strings then it is cal num with NaN</span>
+                    <span class="keyword">if</span> strcmp(findStr,<span class="string">'*'</span>)
+                        match = ~ismember(obj.stackdb{j}{:,stat},{<span class="string">''</span>});
+                    <span class="keyword">else</span>
+                        match = ismember(obj.stackdb{j}{:,stat},{findStr});
+                    <span class="keyword">end</span>
+                    <span class="keyword">if</span> sum(match)
+                        tmpTable = obj.stackdb{j}(match,:);
+                        mTmp = size(tmpTable,1);
+                        tmpTable.session = (zeros(mTmp,1) + j); <span class="comment">% append session column</span>
+                        newNumCols = size(tmpTable,2);
+                        tmpTable = [tmpTable(:,newNumCols) tmpTable(:,1:newNumCols-1)]; <span class="comment">% rearrange session column to be first</span>
+
+                        <span class="comment">%j</span>
+                        t = [t; tmpTable];
+                    <span class="keyword">end</span> <span class="comment">% sum(match)</span>
+                <span class="keyword">end</span>
+            <span class="keyword">end</span> <span class="comment">% j sessions</span>
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span> <span class="comment">% methods</span>
+</pre><h2 id="21">Hidden methods</h2><pre class="codeinput">    methods (Hidden=true)
+        <span class="keyword">function</span> ret = stripchannel_(~, name)
+        <span class="comment">% Strip _ch1, _ch2, _ch3 from end of name</span>
+        ret = strrep(name, <span class="string">'_ch1'</span>, <span class="string">''</span>);
+            ret = strrep(ret, <span class="string">'_ch2'</span>, <span class="string">''</span>);
+            ret = strrep(ret, <span class="string">'_ch3'</span>, <span class="string">''</span>);
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> [y,layerNames] = loadMapFile_(~, mapfilepath)
+        <span class="comment">% load 3d matrix of either (objectMap, segmentMap)</span>
+        <span class="comment">% File is text and has 3rd dimension arranged as 'blocks'</span>
+        <span class="keyword">if</span> exist(mapfilepath, <span class="string">'file'</span>) == 2
+                fid = fopen(mapfilepath);
+                lineHeader = fgetl(fid);
+                fclose(fid);
+                lineHeader = strsplit(lineHeader, <span class="string">';'</span>);
+                numberOfHeaderRows = 0;
+                <span class="comment">% initialize variables for header (name=value) we are expecting</span>
+                rows = NaN;
+                cols = NaN;
+                blocks = NaN;
+                pages = <span class="string">''</span>;
+                <span class="comment">% read header line</span>
+                <span class="keyword">for</span> i = 1:length(lineHeader)
+                    nameValue = strsplit(lineHeader{i},<span class="string">'='</span>);
+                    <span class="keyword">switch</span> (nameValue{1})
+                        <span class="keyword">case</span> <span class="string">'rows'</span>
+                            rows = str2num(nameValue{2});
+                        <span class="keyword">case</span> <span class="string">'cols'</span>
+                            cols = str2num(nameValue{2});
+                        <span class="keyword">case</span> <span class="string">'blocks'</span>
+                            blocks = str2num(nameValue{2});
+                        <span class="keyword">case</span> <span class="string">'blockNames'</span>
+                            blockNames = nameValue{2}; <span class="comment">% comma seperated list</span>
+                            layerNames = strsplit(blockNames,<span class="string">','</span>);
+
+                    <span class="keyword">end</span>
+                <span class="keyword">end</span> <span class="comment">% for i in lineHeader</span>
+                <span class="comment">% sprintf('rows=%d cols=%d blocks=%d, blockNames=%s', rows, cols, blocks, blockNames)</span>
+
+                mapMatrix = dlmread(mapfilepath, <span class="string">'\t'</span>, 1, 0); <span class="comment">% start at second line, first column (NOT 1 based)</span>
+
+                <span class="comment">% reshape into a 3D matrix of size [rows,cols,blocks]</span>
+                <span class="comment">% reshape is column wise (we want row wise)</span>
+                <span class="comment">% thus, this does not work, y = reshape(mapMatrix, [rows,cols,blocks]);</span>
+                <span class="comment">% answer was here: https://www.mathworks.com/matlabcentral/answers/36563-reshaping-2d-matrix-into-3d-specific-ordering</span>
+                <span class="comment">% out = permute(reshape(a',[c,r/nlay,nlay]),[2,1,3])</span>
+                origRows = size(mapMatrix,1);
+                y = permute(reshape(mapMatrix',[cols,origRows/blocks,blocks]),[2,1,3]);
+
+                <span class="comment">% transform stack db indices to 1 based (from 0 based)</span>
+                y(:,:,2) = y(:,:,2) + 1;
+                y(:,:,4) = y(:,:,4) + 1;
+                y(:,:,7) = y(:,:,7) + 1;
+
+        <span class="keyword">end</span> <span class="comment">% mapfilepath exists</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> runMap = makeRunMap_(obj, theMap, theROI, assignRunIdx, checkSanity)
+        <span class="comment">% theMap is (obj.objectMap, obj.segmentMap)</span>
+
+            <span class="comment">% todo: switch these to hidden property constants defined above in class</span>
+            index = 1; <span class="comment">% should get index of {'index'} from obj.objectMapPages</span>
+            next = 2; <span class="comment">% should get index of {'next'} from obj.objectMapPages</span>
+            prev = 4; <span class="comment">% should get index of {'prev'} from obj.objectMapPages</span>
+            runIdx = 7; <span class="comment">% use as sanity check for code below</span>
+
+            m = size(theMap,1);
+            n = size(theMap,2);
+            runMap = nan(m*n,n); <span class="comment">% will resize by trimming empty rows beyond outRow</span>
+            outRow = 1;
+            <span class="keyword">for</span> j = 1:n <span class="comment">% sessions</span>
+                <span class="keyword">for</span> i = 1:m
+                    <span class="keyword">if</span> ~isnan(theMap(i,j,index)) &amp;&amp; (j==1 || isnan(theMap(i,j,prev)))
+                        currNode = i;
+
+                        <span class="comment">% only consider spineROI</span>
+                        <span class="keyword">if</span> theROI
+                            thisROI = obj.stackdb{j}.roiType(currNode);
+                            <span class="keyword">if</span> ~strcmp(thisROI,theROI)
+                                outRow = outRow + 1;
+                                <span class="keyword">continue</span>
+                            <span class="keyword">end</span>
+                        <span class="keyword">end</span>
+
+                        <span class="keyword">for</span> k = j:n
+                            runMap(outRow,k) = currNode; <span class="comment">%could be theMap[i][j][index]</span>
+
+                            <span class="keyword">if</span> assignRunIdx
+                                obj.objectMap(currNode,k,runIdx) = outRow;
+                            <span class="keyword">end</span>
+
+                            <span class="comment">% yyy is copied pasted from igor</span>
+                            <span class="comment">%if checkSanity</span>
+                            <span class="comment">%    if currNode ~= yyy(outRow,k)</span>
+                            <span class="comment">%        sprintf('error')</span>
+                            <span class="comment">%        obj.stackdb{k}.roiType(currNode)</span>
+                            <span class="comment">%    end</span>
+                            <span class="comment">%end</span>
+
+                            <span class="keyword">if</span> isnan(theMap(currNode,k,next))
+                                outRow = outRow + 1;
+                                <span class="keyword">break</span>
+                            <span class="keyword">end</span>
+                            currNode = theMap(currNode,k,next);
+                        <span class="keyword">end</span> <span class="comment">% k in column/session loop</span>
+                    <span class="keyword">end</span> <span class="comment">% j columns/sessions</span>
+                <span class="keyword">end</span> <span class="comment">% i rows</span>
+            <span class="keyword">end</span> <span class="comment">% j columns</span>
+            runMap(outRow:m*n,:) = [];
+        <span class="keyword">end</span>
+
+        <span class="keyword">function</span> stattype = getStatType_(obj, stat, failonerror)
+        <span class="comment">% infer which object ps.stat is in using column tokens</span>
+        <span class="comment">% if in both, stackdb trumps int</span>
+            stattype = <span class="string">''</span>;
+            isStackdb = ismember(stat, obj.stackdbTokens);
+            isInt = ismember(stat, obj.intTokens);
+
+            <span class="comment">% bug: assuming we have at least one stack</span>
+            userTokens = obj.userStats{1}.Properties.VariableNames;
+            isUser = ismember(stat, userTokens);
+
+            <span class="keyword">if</span> isStackdb
+                stattype = <span class="string">'stackdb'</span>;
+            <span class="keyword">elseif</span> isInt
+                stattype = <span class="string">'int'</span>;
+            <span class="keyword">elseif</span> isUser
+                stattype = <span class="string">'userstat'</span>;
+            <span class="keyword">else</span>
+                errorStr = [<span class="string">'mmMap.GetMapValues() did not find ps.stat: '</span> ps.stat <span class="string">' in map '</span> obj.mapName];
+                <span class="keyword">if</span> failonerror
+                    error(errorStr)
+                <span class="keyword">else</span>
+                    errorStr
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span> <span class="comment">% methods (hidden)</span>
+</pre><pre class="codeinput"><span class="keyword">end</span> <span class="comment">% classdef mmMap</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%   mmMap A class to load, pull annotations, and analyze a Map Manager map.
+%
+%   mmMap Properties:
+%       a - Description of a
+%       b - Description of b
+%
+%   mmMap Methods:
+%       mmMap - Construct an mmMAp from a file path
+%       defaultPlotStruct - Get a default plot struct
+%       GetMapValues - Get values of annotations across a map
+
+% Author: Robert Cudmore
+% Date: 20170927
+% Email: robert.cudmore@gmail.com
+% Website: http://www.cudmore.io/mapmanager
+
+% todo: write fn to return map stats for a ps (per session)
+% todo: [done] fn to return segment line (x,y,z)
+% todo: [done] fn to return image
+% todo: fn to return nearest-neighbor, ps.x=stat, ps.y = nn stat ([i][j] in
+% ps.x is 'spine', [i][j] in ps.y is nn (value).
+% todo: [done] return map nv (days, hours, etc) for plotting. add example
+% todo: Add ps.stipEmptyRows and have GetMapValues() strip rows
+%   based on final ps.stackdbIdx
+% todo: Switch ps.y and ps.x to (ps.val, ps.sessionIndex, ps.stackdbIdx)
+
+classdef mmMap
+ 
+    %% Public properties
+    properties
+        mapName % Name of the map, same as enclosing folder name
+        mapPath % Path to map folder used in constructor
+
+        numChannels
+        numSessions % Number of sessions in the map
+        numSegments % Number of segments in the map
+
+        stackdb % Array of table with annotation values.
+        int1 % Array of table with annotation values.
+        int2 % Array of table with annotation values.
+        int3 % Array of table with annotation values.
+        linedb % Array of table with segment line values.
+%todo: decide what to do here, LoadStacks() RETURNS images does not set obj.images
+        images % Array of 3D stack images. Loaded with LoadStacks()
+
+        userStats % Array of table, can be filled in with addUserStat()
+        
+        mapNV % Text table of map, rows are labelled with names, columns are sessions
+
+        % Each row gives stack db centric indices of connected run of annotations.
+        % Columns are sessions.
+        % objectRunMap(i,j) gives stack db centric index of spine in session j.
+        % Number of runs (rows) has no intrinsic meaning, it is dependent on
+        % how objects are connected (e.g. their dynamics).
+        objectRunMap
+        
+        % Same story as objectRunMap but gives information for connectivity
+        % of segments.
+        segmentRunMap
+           
+        loadTime % bookkeeping, time it took to load the map
+    end
+    
+    %% Hidden properties
+    properties (Hidden=true)
+        objectMap % 3D 0 based int, rows are runs, columns are sessions
+        objectMapPages % names of the 3rd dimension into objectMap
+        
+        segmentMap % 3D 0 based int, rows are runs, columns are sessions
+        segmentMapPages % names of the 3rd dimension into segmentMap
+                
+        stackdbTokens % todo: get rid of this
+        intTokens % todo: get rid of this 
+    end
+    
+    %% Hidden constant properties
+    properties (Hidden=true, Constant)
+        % object and segment map are 3d with names pages/slices
+        % {'idx'},{'next'},{'nextTP'},{'prev'},{'prevTP'},{'blank'},{'runIdx'},{'dynType'},{'forced'} {'nodeType'},{'segmentID'},{'splitIdx'}
+        % todo: finish this and use these constants in code
+        kRunIdx = 7; % specifies runIdx slice into objectMap and segmentMap
+    end
+    
+    %% Static methods
+    methods (Static=true)
+        %% defaultPlotStruct
+        function ps = defaultPlotStruct()
+            % defaultPlotStruct Get a default plot struct used in plotting functions
+            %   ps = mmMap.defaultPlotStruct()
+            % Returns:
+            %   ps.roitype (str) : Map Manager ROI type, one of {'spineROI', 'otherROI'}
+            %   ps.stat (str) : The name of the stat, check if name is valid with xxx()
+            %   ps.stattype (str) : '' to infer type as one of {'stackdb', 'int1', 'int2', 'int3'}
+            %   ps.channel = (int) : For int stat type, range is [1:numChannels]
+            %   ps.session = (int) : Session index [1..numSessions] for a single session, NaN for all
+            %   ps.mapsegment = (int) : Map segment index, NaN for all
+            %   ps.plotbad = false;
+            %   ps.plotintbad = false;
+            %   ps.ploterrorwarning = false;
+            % Examples:
+            %   ps = mmMap.defaultPlotStruct()
+            %   ps = myMap.defaultPlotStruct()
+            % Notes:
+            %   - Additional fields are filled in and returnd by plot
+            %   functions GetMapValues(ps).
+            %   - This method is static and will work the same in the two
+            %   examples above.
+            
+            ps.roitype = 'spineROI'; % (str) : Map Manager ROI type, one of {'spineROI', 'otherROI'}
+            
+            ps.stat = ''; % (str) : The name of the stat, check if name is valid with xxx()
+            ps.stattype = ''; % (str) : '' to infer type as one of {'stackdb', 'int1', 'int2', 'int3'}
+            ps.channel = 1; % (int) : For int stat type, range is [1:numChannels]
+            
+            ps.session = NaN; % (int) : Session index [1..numSessions] for a single session, NaN for all
+            ps.mapsegment = NaN; % (int) : Map segment index, NaN for all
+            
+            ps.plotbad = false;
+            ps.plotintbad = false;
+            ps.ploterrorwarning = false;
+        end
+    end % methods (static)
+    
+    %% Public methods
+    methods
+        %% mmMap
+        function obj = mmMap(mapPath)
+        % mmMap Constructor
+        %   myMap = mmMap(mapPath)
+        % Parameters:
+        %   mapPath (str): Full path to Map Manager map folder
+
+            startTime = clock;
+            
+            % strip off trailing '/'
+            if endsWith(mapPath,'/')
+                mapPath = mapPath(1,strlength(mapPath)-1);
+            end
+            
+            obj.mapPath = mapPath;
+            [parentFolder,obj.mapName] = fileparts(mapPath);
+            
+            stackdbPath = fullfile(mapPath,'stackdb');
+            linePath = fullfile(mapPath,'line');
+                        
+            mapnvFile = strcat(obj.mapName,'.txt');
+            mapnvPath = fullfile(mapPath,mapnvFile);
+            if ~(exist(mapnvPath, 'file')==2)
+                error(['mmMap did not find main map file:' mapnvPath])
+            end
+            
+            obj.mapNV = readtable(mapnvPath, 'Delimiter', '\t', 'ReadRowNames', true); %, 'TreatAsEmpty', 'N/A');            
+            
+            n = size(obj.mapNV,2);
+            obj.numSessions = 0;
+            obj.numChannels = 1; % we will always have at least one channel
+            % step through each column and get stack names into /stackdb/ folder
+            for j = 1:n
+                % we can't use GetValue_NV() because it error checks on
+                % obj.numSessions and it is not assigned yet
+                %stackname = obj.GetValue_NV('hsStack',j);
+                stackname = char(obj.mapNV{'hsStack',j});
+                if ~isempty(stackname) && ~strcmp(stackname,char(NaN))
+                    %{j obj.numSessions stackname}
+                    obj.numSessions = obj.numSessions + 1;
+                    
+                    stackname = obj.stripchannel_(stackname);
+                    stackdbFile = strcat(stackname, '_db2.txt');
+                    stackdbFilePath = fullfile(stackdbPath, stackdbFile);
+                    
+                    lineFile = strcat(stackname, '_l.txt');
+                    lineFilePath = fullfile(linePath, lineFile);
+                    
+                    int1File = strcat(stackname, '_int1.txt');
+                    int1FilePath = fullfile(stackdbPath, int1File);
+                    
+                    int2File = strcat(stackname, '_int2.txt');
+                    int2FilePath = fullfile(stackdbPath, int2File);
+                    
+                    int3File = strcat(stackname, '_int3.txt');
+                    int3FilePath = fullfile(stackdbPath, int3File);
+                    
+                    userFile = strcat(stackname, '_user.txt');
+                    userFilePath = fullfile(stackdbPath, userFile);
+                    
+                    if exist(stackdbFilePath, 'file') == 2
+                        obj.stackdb{j} = readtable(stackdbFilePath, 'Delimiter', ',', 'TreatAsEmpty', 'NA');
+                        
+                        %bug: need to convert all stackdb{:} (note, error, warning) to text
+                        % when one of these is empty it is coming in as NaN
+                        if iscellstr(obj.stackdb{j}.note)
+                            % OK
+                        else
+                            %{j 'note was NaN and is now cell array'}
+                            obj.stackdb{j}.note = num2cell(obj.stackdb{j}.note);
+                        end
+                        if iscellstr(obj.stackdb{j}.error)
+                            % OK
+                        else
+                            %{j 'error was NaN and is now cell array'}
+                            obj.stackdb{j}.error = num2cell(obj.stackdb{j}.error);
+                        end
+                        if iscellstr(obj.stackdb{j}.warning)
+                            % OK
+                        else
+                            %{j 'warning was NaN and is now cell array'}
+                            obj.stackdb{j}.warning = num2cell(obj.stackdb{j}.warning);
+                        end
+                        
+                        % fix Idx, it is out of order in map manager file
+                        % (not used in map manager)
+                        mStack = size(obj.stackdb{j},1);
+                        obj.stackdb{j}.Idx = (1:mStack)';
+ 
+                        if j==1
+                            obj.stackdbTokens = obj.stackdb{j}.Properties.VariableNames;
+                        end
+                    else
+                        error(['mmMap did not find stack db file:' stackdbFilePath])
+                    end
+                    
+                    if exist(lineFilePath, 'file') == 2
+                        fid = fopen(lineFilePath);
+                        lineHeader = fgetl(fid);
+                        fclose(fid);
+                        lineHeader = strsplit(lineHeader, ';');
+                        numberOfHeaderRows = 0;
+                        for i = 1:length(lineHeader)
+                            nameValue = strsplit(lineHeader{i},'=');
+                            if strcmp(nameValue{1},'numHeaderRow')
+                                numberOfHeaderRows = str2num(nameValue{2});
+                            end
+                        end % for
+                        linesToSkip = numberOfHeaderRows + 2;
+                        obj.linedb{j} = readtable(lineFilePath, 'Delimiter', ',', 'HeaderLines', linesToSkip);
+                    else
+                        % OK, sometimes we don't have a line
+                    end
+                    
+                    if exist(int1FilePath, 'file') == 2
+                        obj.int1{j} = readtable(int1FilePath, 'Delimiter', ',');
+                        if j==1
+                            obj.intTokens = obj.int1{j}.Properties.VariableNames;
+                        end
+                    else
+                        error(['mmMap did not find int1 file' int1FilePath])
+                    end
+                    
+                    if exist(int2FilePath, 'file') == 2
+                        obj.int2{j} = readtable(int2FilePath, 'Delimiter', ',');
+                        if j==1
+                            obj.numChannels = 2;
+                        end
+                    else
+                        % OK
+                    end
+                    
+                    if exist(int3FilePath, 'file') == 2
+                        obj.int3{j} = readtable(int3FilePath, 'Delimiter', ',');
+                        if j==1
+                            obj.numChannels = 3;
+                        end
+                    else
+                        % OK
+                    end
+                
+                    if exist(userFilePath, 'file') == 2
+                        obj.userStats{j} = readtable(userFilePath, 'Delimiter', ',');
+                    else
+                        % make a userStats table
+                        % append to this table with addUserStat()
+                        mStack = size(obj.stackdb{j},1);
+                        unity = 1:mStack;
+                        unity = unity';
+                        obj.userStats{j} = table(unity);
+                        obj.userStats{j}.Properties.VariableNames = {'Idx'};
+                    end
+                
+                end % stackname not empty
+            end % j sessions
+            
+            % load object map
+            mapfilepath = [obj.mapPath '/' obj.mapName '_objMap.txt'];
+            if exist(mapfilepath, 'file') == 2
+                [obj.objectMap, obj.objectMapPages] = obj.loadMapFile_(mapfilepath);
+                obj.objectRunMap = obj.makeRunMap_(obj.objectMap, 'spineROI', 1, 1);
+            else
+                error(['mmMap did not find object map:' mapfilepath])
+            end
+            
+            % load segment map
+            mapfilepath = [obj.mapPath '/' obj.mapName '_segMap.txt'];
+            if exist(mapfilepath, 'file') == 2
+                [obj.segmentMap, obj.segmentMapPages] = obj.loadMapFile_(mapfilepath);
+                obj.segmentRunMap = obj.makeRunMap_(obj.segmentMap, '', 0, 0);
+                obj.numSegments = size(obj.segmentRunMap,1);
+            end
+            
+            obj.loadTime = etime(clock,startTime);
+            sprintf('Loaded map %s in %f seconds', obj.mapName, obj.loadTime)
+            
+        end % mmMap() constructor
+                
+% todo: finish this funciton
+        %% validStats
+        function [validStats, validTypes] = validStats(obj)
+        % Return a cell array of valid stat names
+        
+            % get column tokens with
+            % obj.stackdb{j}.Properties.VariableNames
+            
+            % strcat does not work like this !!!
+            validStats = strcat(obj.stackdbTokens, obj.stackdbTokens);
+            validTypes = ''
+        end
+        
+        %% isValidStat
+        function [valid, type] = isValidStat(obj, stat)
+        % Return true if stat is a valid stat
+        %   [valid, type] = myMap.isValidStat(stat)
+        % Parameters:
+        %   stat (str) :
+        % Returns:
+        %   valid (boolean) :
+        %   type (str) : one of ('stackdb', 'int'), '' if ~valid
+            isStackdb = ismember(stat, obj.stackdbTokens);
+            isInt = ismember(stat, obj.intTokens);
+            if isStackdb || isInt
+                % ok
+                valid = true;
+                if isStackdb
+                    type = 'stackdb';
+                elseif isInt
+                    type = 'int';
+                end
+            else
+                % error
+                valid = false;
+                type = '';
+            end
+        end
+        
+        %% GetValue_NV
+        function s = GetValue_NV(obj, name, session)
+        % Get value from a session in a map
+        %   s = myMap.GetValue_NV(name, session)
+        % Parameters:
+        %   name (string) : Name of row token into myMap.mapNV
+        %   session (int) : 
+        % Returns:
+        %   s (str) : Use str2num(s) if getting a number
+        % Examples:
+        %   voxelx = str2num(map.GetValue_NV('dx',2))
+        %   voxely = str2num(map.GetValue_NV('dy',2))
+        %   voxelz = str2num(map.GetValue_NV('dz',2))
+        %   sessionCondition = map.GetValue_NV('condStr',2)
+        
+            % check that name is a row name
+            if ~ismember(obj.mapNV.Properties.RowNames, name)
+                error(['error: GetValue_NV() did not find row named ''' name ''' in obj.mapNV'])
+            end
+            
+            % check that session is valid
+            if session>obj.numSessions
+                error(['error: GetValue_NV() got out of bounds session ''' num2str(session) ''' valid range is [1:' num2str(obj.numSessions) ']'])
+            end
+            
+            s = char(obj.mapNV{name,session});
+            
+            % don't return ' '
+            if s == ' '
+                s = ''
+            end
+        end
+        
+        %% GetLine
+        function ps = GetLine(obj, ps)
+        % Get (x,y,z) of a segment tracing
+        %   ps = myMap.GetLine(ps)
+        % Parameters:
+        %   ps.session (int) : session number to get
+        %   ps.mapsegment (int) : map segment to get, NaN for all
+        % Returns:
+        %   ps.line (2D matrix) : Rows are points in tracing
+        %       Columns 1/2/3 are x/y/z respectively
+        %       Units for x/y are um
+        %       Units for z are slices
+        
+            m = size(obj.linedb{ps.session},1);
+            n = 3;
+            ps.line = NaN(m,n);
+            
+            if ps.mapsegment >= 0
+                theseRows = obj.linedb{ps.session}.ID(:) == ps.mapsegment;
+            else
+                theseRows = ~isnan(obj.linedb{ps.session}.ID(:));
+            end
+            
+            ps.line(theseRows,1) = obj.linedb{ps.session}.x(theseRows);
+            ps.line(theseRows,2) = obj.linedb{ps.session}.y(theseRows);
+            ps.line(theseRows,3) = obj.linedb{ps.session}.z(theseRows);
+            
+        end
+        
+        %% LoadStacks
+        function ps = LoadStacks(obj,ps)
+        % Load images for a stack for a session
+        %   ps = myMapLoadStacks(ps)
+        % Parameters:
+        %   ps.sessions (int) : Session to load
+        %   ps.channel (int) : Image channel to load
+        % Returns:
+        %   ps.images{ps.session}
+            
+            numSlices = str2num(obj.GetValue_NV('pz',ps.session));
+            stackname = obj.GetValue_NV('hsStackNV',ps.session);
+            chStr = ['_ch' string(ps.channel)];
+            stackFile = [stackname chStr '.tif'];
+            stackPath = strjoin([obj.mapPath '/' 'raw' '/' stackFile], '');
+            stackPath = char(stackPath);
+            % question: I want images to be part of mmMap object
+            % This seems to require obj = obj.LoadStacks(ps)
+            % not sure if this is a good idea as we are making extra copies ? slow?
+            %obj.images{ps.session} = imread(stackPath);
+            
+%bug: this will only hold the last channel load, fix this
+            % question: can I read a multi-page tiff with one command?
+            for slice = 1:numSlices
+                ps.images{ps.session}(:,:,slice) = imread(stackPath, slice);
+            end
+        end
+        
+        %% GetMapDynamics
+        function ps = GetMapDynamics(obj, ps)
+        % Get map dynamics
+        %   ps = myMap.GetMapDynamics(ps)
+        % Parameters:
+        %   
+        % Returns:
+        %   ps.added (2D matrix of boolean) : 
+        %   ps.addedRuns (2D matrix of boolean) : 
+        %   ps.subtracted (2D matrix of boolean) : 
+        %   ps.subtractedRuns (2D matrix of boolean) : 
+        %   ps.transient (2D matrix of boolean) : 
+        %   ps.alwaysPresent (2D matrix of boolean) : 
+         
+            %
+            % todo: use main getmapvalues to get valid candidates based on
+            % (roiType, bad, etc)
+            % todo: [done] expand this to take ps and return
+            %   all dynamics (add, sub, tran, addrun, subrun)
+            [m,n] = size(obj.objectRunMap);
+            ps.added = nan(m,n);
+            ps.addedRuns = nan(m,n);
+            ps.subtracted = nan(m,n);
+            ps.subtractedRuns = nan(m,n);
+            ps.transient = nan(m,n);
+            ps.alwaysPresent = nan(m,n);
+            ps.x = nan(m,n);
+            for i = 1:m % runs
+                isAdded = 0;
+                jSubtracted = nan;
+                for j = 1:n % sessions
+                    if isnan(obj.objectRunMap(i,j))
+                        continue
+                    end
+                    %case 'added'
+                    if j>1 && isnan(obj.objectRunMap(i,j-1))
+                        ps.added(i,j) = 1;
+                    end
+                    %case 'added run'
+                    if j>1 && isnan(obj.objectRunMap(i,j-1))
+                        ps.addedRuns(i,j) = 1;
+                        isAdded = 1;
+                    end
+                    if isAdded
+                        ps.addedRuns(i,j) = 1;
+                    end
+                    %case 'subtracted'
+                    if j<n && isnan(obj.objectRunMap(i,j+1))
+                        ps.subtracted(i,j) = 1;
+                    end
+                    %case 'subtracted run'
+                    if j<n && isnan(obj.objectRunMap(i,j+1))
+                        ps.subtractedRuns(i,j) = 1;
+                        jSubtracted = j;
+                    end
+                    %case 'transient'
+                    if j>1 && j<n && isnan(obj.objectRunMap(i,j-1)) && isnan(obj.objectRunMap(i,j+1))
+                        ps.transient(i,j) = 1;
+                        % break
+                    end
+                    %case 'always present'
+                    if isnan(obj.objectRunMap(i,j))
+                        % not 'always present'
+                        ps.alwaysPresent(i,:) = 0;
+                        break
+                    else
+                        ps.alwaysPresent(i,j) = 1;
+                    end
+                    if ~isnan(jSubtracted) %&& cmpstr(thisType,'subtracted run')
+                        ps.subtractedRun(i,1:jSubtracted) = 1;
+                    end
+                    ps.x(i,j) = j;
+                end % j = 1:n sessions
+            end % i = 1:m runs
+        end
+        
+        %% GetMapValues
+        function ps = GetMapValues(obj, ps)
+        %GetMapValues Get values of annotations from a map.
+        %   Syntax:
+        %       ps = myMap.GetMapValues(ps)
+        %   Parameters:
+        %       ps (Struct) : Use mmMap.defaultPlotStruct() to get template
+        %       ps.roitype (str) :
+        %       ps.channel (int) : Uses for stat type 'int'
+        %       ps.mapSegment (int) :
+        %       ps.plotBad (boolean) :
+        %       ps.plotintbad (boolean) :
+        %       ps.ploterrorwarning (boolean) :
+        %   Returns:
+        %       ps.y (2D matrix of float) :
+        %       ps.x (2D matrix of float) :
+        %       ps.days (2D matrix of float) :
+        %   Examples:
+        %       ps = mmMap.defaultPlotStruct();
+        %       ps.stat = 'ubssSum';
+        %       ps.channel = 2;
+        %       ps = myMap.GetMapValues(ps);
+        %       plot(ps.x, ps.y, 'ok'); % plot ubssSum versus session
+        %       plot(ps.days, ps.y, 'ok'); % plot ubssSum versus days
+          
+            [m,n] = size(obj.objectRunMap);
+            
+            yVal = NaN(m,n);
+            xVal = NaN(m,n); % just session for now
+            ps.days = NaN(m,n);
+            
+            runIdx = 7;
+            
+            % todo: put this into function_
+            if ps.stattype
+                stattype = ps.stattype;
+            else
+                stattype = obj.getStatType_(ps.stat, 1);
+            end
+                
+            for j = 1:n % sessions
+                mStack = size(obj.stackdb{j},1);
+                allOnes = ones(mStack,1);
+                
+                % spineROI
+                if ps.roitype
+                    spineROI_rhs = ismember(obj.stackdb{j}.roiType, {ps.roitype});
+                else
+                    spineROI_rhs = allOnes;
+                end
+% todo: need to use segment map
+                % parent segment
+                if ps.mapsegment >= 0
+                    mapsegment_rhs = obj.stackdb{j}.parentID(:) == ps.mapsegment;
+                else
+                    mapsegment_rhs = allOnes;
+                end
+                % not isBad
+                if ps.plotbad
+                    isGood_rhs = allOnes;
+                else
+                    isGood_rhs = ~(obj.stackdb{j}.isBad(:) == 1);
+                end
+                % not intBad
+                if ps.plotintbad
+                    isIntGood_rhs = allOnes;
+                else
+                    isIntGood_rhs = ~(obj.stackdb{j}.intBad(:) == 1);
+                end
+                
+% todo: check this
+% todo: should we ignore warnings?
+                % errors and warnings (from intensity analysis)
+errorWarning_rhs = allOnes;
+%                 if ps.ploterrorwarning
+%                     errorWarning_rhs = allOnes;
+%                 else
+%                     % todo: FIX
+%                     if iscellstr(obj.stackdb{j}{:,'error'})
+%                         errorWarning_rhs = ~ismember(obj.stackdb{j}.error, {''});
+%                     else
+%                         %was not cellstr, probably no errors and it defaulted to nan
+%                         errorWarning_rhs = allOnes;
+%                     end
+%                 end
+                    
+                final_rhs = spineROI_rhs & mapsegment_rhs & isGood_rhs & isIntGood_rhs & errorWarning_rhs;
+                final_lhs = obj.objectMap(final_rhs,j,runIdx);
+                                
+                % pull the stat
+                switch (stattype)
+                    case 'stackdb'
+                        yVal(final_lhs,j) = table2array(obj.stackdb{j}(final_rhs,{ps.stat}));
+                    case 'int'
+                        switch ps.channel
+                            case 1
+                                yVal(final_lhs,j) = table2array(obj.int1{j}(final_rhs,{ps.stat}));
+                            case 2
+                                yVal(final_lhs,j) = table2array(obj.int2{j}(final_rhs,{ps.stat}));
+                            case 3
+                                yVal(final_lhs,j) = table2array(obj.int3{j}(final_rhs,{ps.stat}));
+                        end
+                    case 'userstat'
+                        yVal(final_lhs,j) = table2array(obj.userStats{j}(final_rhs,{ps.stat}));
+                end
+                
+                xVal(final_lhs,j) = j;
+                
+                thisDay = str2num(obj.GetValue_NV('days',j));
+                ps.days(final_lhs,j) = thisDay;
+            end % j sessions
+            
+            ps.x = xVal;
+            ps.y = yVal;
+            %ps.days = days
+        end
+        
+        %% addUserStat
+        function obj = addUserStat(obj, newStatName, newStatValues)
+        % Add a user stat to map
+        %   myMap = myMap.addUserStat(newStatName, newStatValues)
+        % Arguments:
+        %   newStatName (str) : Name of stat to add
+        %   newStatValues (2D matrix of float) : Same shape as ps.y
+        % Returns:
+        %   Assigns obj.userStat{:}(:,{stat})
+        % Note:
+        %   This function is changing myMap.userStat, you must use
+        %   assignment like:
+        %       myMap = myMap.addUserStat(newStatName, newStatValues)
+        % Example:
+        %   ps = mmMap.defaultPlotStruct();
+        %   ps.stat = 'pDist';
+        %   ps = obj.GetMapValues(ps);
+        %   newStatName = 'myNewStat';
+        %   newStatValues = ps.y + 100;
+        %   myMap = myMap.addUserStat(newStatName, newStatValues)        
+        
+        % todo: I don't like returning obj, there does not seem to be any
+        % way to pass by reference?
+        
+            % todo: make sure newStatValues is correct shape
+            
+            % check that stat is not already a column
+            failOnError = 0;
+            newStatType = obj.getStatType_(newStatName, failOnError);
+            
+            if ~strcmp(newStatType,'')
+               %[newStatName ' is already a column in userStats'] 
+            else
+                % expand all obj.userStats{:} to include new column named
+                % 'stat' and with values of NaN
+                
+                for j = 1:obj.numSessions
+                    mStack = size(obj.stackdb{j},1);
+                    % make a new table and concatenate to existing
+                    newTable = table(NaN(mStack,1));
+                    newTable.Properties.VariableNames = {newStatName};
+                    obj.userStats{j} = [obj.userStats{j} newTable];
+                end
+            end
+        
+            % fill in table for each session with values from userMatrix(:,j)
+            for j = 1:obj.numSessions
+                goodCol = ~isnan(obj.objectRunMap(:,j));
+                lhs_index = obj.objectRunMap(goodCol,j);
+                obj.userStats{j}{:,newStatName} = NaN; % clear existing
+                obj.userStats{j}(lhs_index,newStatName) = array2table(newStatValues(goodCol,j));
+            end
+        end
+        
+        %% save
+        function save(obj)
+        % Save the map
+        % The only thing we save is userStats added with addUserStat()
+
+            for j = 1:obj.numSessions
+                stackdbPath = fullfile(obj.mapPath,'stackdb');
+                stackname = obj.GetValue_NV('hsStack',j);
+                stackname = obj.stripchannel_(stackname);
+                userStatsFile = strcat(stackname, '_user.txt');
+                userStatsFilePath = fullfile(stackdbPath, userStatsFile);
+                
+                writetable(obj.userStats{j}, userStatsFilePath);
+                %['Saved userStats to ' userStatsFilePath]
+            end % j sessions
+        end
+        
+        %% find
+        function t = find(obj, stat, findStr)
+        % find findStr in map stack db
+            t = table();
+            %t.Properties.VariableNames = {'session'};
+            for j = 1:obj.numSessions
+                if iscellstr(obj.stackdb{j}{:,stat}) % if no strings then it is cal num with NaN
+                    if strcmp(findStr,'*')
+                        match = ~ismember(obj.stackdb{j}{:,stat},{''});
+                    else
+                        match = ismember(obj.stackdb{j}{:,stat},{findStr});
+                    end
+                    if sum(match)
+                        tmpTable = obj.stackdb{j}(match,:);
+                        mTmp = size(tmpTable,1);
+                        tmpTable.session = (zeros(mTmp,1) + j); % append session column
+                        newNumCols = size(tmpTable,2);
+                        tmpTable = [tmpTable(:,newNumCols) tmpTable(:,1:newNumCols-1)]; % rearrange session column to be first
+
+                        %j
+                        t = [t; tmpTable];
+                    end % sum(match)
+                end
+            end % j sessions
+        end
+        
+    end % methods
+    
+    %% Hidden methods
+    methods (Hidden=true)
+        function ret = stripchannel_(~, name)
+        % Strip _ch1, _ch2, _ch3 from end of name
+        ret = strrep(name, '_ch1', '');
+            ret = strrep(ret, '_ch2', '');
+            ret = strrep(ret, '_ch3', '');
+        end
+        
+        function [y,layerNames] = loadMapFile_(~, mapfilepath)
+        % load 3d matrix of either (objectMap, segmentMap)
+        % File is text and has 3rd dimension arranged as 'blocks'
+        if exist(mapfilepath, 'file') == 2
+                fid = fopen(mapfilepath);
+                lineHeader = fgetl(fid);
+                fclose(fid);
+                lineHeader = strsplit(lineHeader, ';');
+                numberOfHeaderRows = 0;
+                % initialize variables for header (name=value) we are expecting
+                rows = NaN;
+                cols = NaN;
+                blocks = NaN;
+                pages = '';
+                % read header line
+                for i = 1:length(lineHeader)
+                    nameValue = strsplit(lineHeader{i},'=');
+                    switch (nameValue{1})
+                        case 'rows'
+                            rows = str2num(nameValue{2});
+                        case 'cols'
+                            cols = str2num(nameValue{2});
+                        case 'blocks'
+                            blocks = str2num(nameValue{2});
+                        case 'blockNames'
+                            blockNames = nameValue{2}; % comma seperated list
+                            layerNames = strsplit(blockNames,',');
+                           
+                    end
+                end % for i in lineHeader
+                % sprintf('rows=%d cols=%d blocks=%d, blockNames=%s', rows, cols, blocks, blockNames)
+                
+                mapMatrix = dlmread(mapfilepath, '\t', 1, 0); % start at second line, first column (NOT 1 based)
+                
+                % reshape into a 3D matrix of size [rows,cols,blocks]
+                % reshape is column wise (we want row wise)
+                % thus, this does not work, y = reshape(mapMatrix, [rows,cols,blocks]);
+                % answer was here: https://www.mathworks.com/matlabcentral/answers/36563-reshaping-2d-matrix-into-3d-specific-ordering
+                % out = permute(reshape(a',[c,r/nlay,nlay]),[2,1,3])
+                origRows = size(mapMatrix,1);
+                y = permute(reshape(mapMatrix',[cols,origRows/blocks,blocks]),[2,1,3]);
+                
+                % transform stack db indices to 1 based (from 0 based)
+                y(:,:,2) = y(:,:,2) + 1;
+                y(:,:,4) = y(:,:,4) + 1;
+                y(:,:,7) = y(:,:,7) + 1;
+                
+        end % mapfilepath exists
+        end
+        
+        function runMap = makeRunMap_(obj, theMap, theROI, assignRunIdx, checkSanity)
+        % theMap is (obj.objectMap, obj.segmentMap)
+
+            % todo: switch these to hidden property constants defined above in class
+            index = 1; % should get index of {'index'} from obj.objectMapPages
+            next = 2; % should get index of {'next'} from obj.objectMapPages
+            prev = 4; % should get index of {'prev'} from obj.objectMapPages
+            runIdx = 7; % use as sanity check for code below
+                        
+            m = size(theMap,1);
+            n = size(theMap,2);
+            runMap = nan(m*n,n); % will resize by trimming empty rows beyond outRow
+            outRow = 1;
+            for j = 1:n % sessions
+                for i = 1:m
+                    if ~isnan(theMap(i,j,index)) && (j==1 || isnan(theMap(i,j,prev)))
+                        currNode = i;
+                        
+                        % only consider spineROI
+                        if theROI
+                            thisROI = obj.stackdb{j}.roiType(currNode);
+                            if ~strcmp(thisROI,theROI)
+                                outRow = outRow + 1;
+                                continue
+                            end
+                        end
+                        
+                        for k = j:n
+                            runMap(outRow,k) = currNode; %could be theMap[i][j][index]
+                            
+                            if assignRunIdx
+                                obj.objectMap(currNode,k,runIdx) = outRow;
+                            end
+                            
+                            % yyy is copied pasted from igor
+                            %if checkSanity
+                            %    if currNode ~= yyy(outRow,k)
+                            %        sprintf('error')
+                            %        obj.stackdb{k}.roiType(currNode)
+                            %    end
+                            %end
+                            
+                            if isnan(theMap(currNode,k,next))
+                                outRow = outRow + 1;
+                                break
+                            end
+                            currNode = theMap(currNode,k,next);
+                        end % k in column/session loop
+                    end % j columns/sessions
+                end % i rows
+            end % j columns
+            runMap(outRow:m*n,:) = [];
+        end
+        
+        function stattype = getStatType_(obj, stat, failonerror)
+        % infer which object ps.stat is in using column tokens
+        % if in both, stackdb trumps int
+            stattype = '';
+            isStackdb = ismember(stat, obj.stackdbTokens);
+            isInt = ismember(stat, obj.intTokens);
+            
+            % bug: assuming we have at least one stack
+            userTokens = obj.userStats{1}.Properties.VariableNames;
+            isUser = ismember(stat, userTokens);
+
+            if isStackdb
+                stattype = 'stackdb';
+            elseif isInt
+                stattype = 'int';
+            elseif isUser
+                stattype = 'userstat';
+            else
+                errorStr = ['mmMap.GetMapValues() did not find ps.stat: ' ps.stat ' in map ' obj.mapName];
+                if failonerror
+                    error(errorStr)
+                else
+                    errorStr
+                end
+            end
+        end
+        
+    end % methods (hidden)
+end % classdef mmMap
+
+##### SOURCE END #####
+--></body></html>
