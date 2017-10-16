@@ -537,10 +537,11 @@ classdef mmMap < handle
         function condMean = GetMapValuesCond(obj, ps, theCond)
         %
         % Parameters:
-        %   theCond (str) : Condition to search for, can use iwldcard
+        %   theCond (str) : Condition to search for, can use wildcard '*'.
         % Returns:
-        %   Row vector of mean for ps.stat where is row is mean of ps.val
-        %   from columns that matched wildcard theCond
+        %   Vector of mean from rows of ps.val where each element (in the returned vector)
+        %       is mean across rows of ps.val only for sessions (columns) that
+        %       matched wildcard condition theCond. 
         
             ps = obj.GetMapValues(ps);
             mVal = size(ps.val,1);
