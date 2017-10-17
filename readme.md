@@ -2,26 +2,26 @@
 
 [Map Manager][5] is a program to annotate 3D image time-series. It provides a rich user-interface to create, curate, and visualize 3D annotations. Map Manager is written in Igor Pro and conveniently saves all annotations as plain text.
 
-<IMG align="right" SRC="images/mmExamples_13.png" width=400 height=400>
+<IMG align="right" SRC="images/mmExamples_13.png" width=500 height=500>
 
 Here, we provide a Matlab toolbox to load, visualize, and extend Map Manager annotations created with the Igor Pro version.
 
 We also have a Python package [PyMapManager][3], please see the Python [API][4]. 
 
-### Getting started
+## Getting started
  
  - Download the [latest release][1].
  - Extract the .zip file.
  - See examples in **/examples/mmExamples.m.**
  - See the [documentation][2].
 
-### Classes
+## Classes
 
  - mmMap - A Map Manager map
  - mmStack - A Map Manager stack
  - mmPlot - Utility class to plot mmMap and mmStack objects.
 
-### mmMap
+## mmMap
 ```
  mmMap - A class to load, extract, and analyze annotations in a Map Manager map.
  
