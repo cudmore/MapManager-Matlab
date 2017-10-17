@@ -1,8 +1,35 @@
-%   mmStack A class to load, extract, and analyze annotations in a Map Manager stack.
+%mmStack - A class to load, extract, and analyze annotations in a Map Manager stack.
 %
-%   mmStack Properties:
-%       stackName (str) :
-%       
+%To construct a mmStack:
+%   myStack = mmStack(tiffPath)
+%
+%mmStack Properties:
+%   stackName (str) :
+%   tiffPath (str) :
+%   inMap (boolean) : True if stack is inserted into a mmMap, false otherwise.
+%   stackdb (table of str) : table of annotations, one row per annotation
+%   int1 (table of float) : table of intensity values for each annotations
+%   int2 (table of float) :
+%   int3 (table of float) :
+%   userstat (table of float) : table of user created annotation values
+%   linedb (table of float) : table of all segment tracings in the stack
+%
+%Annotations:
+%   getStackValues - Get annotation from stack
+%   addUserStat - 
+%
+%Tracing:
+%   getTracing - Get one or all segment tracings
+%
+%Images:
+%   loadStack - Load the image stack
+%   unloadStack - Unload the image stack
+%
+%Utility
+%   find - find annotations by their note stat
+%   save - save user annotations added with addUserStat
+%
+% <a href="matlab:methods('mmmStack')">List methods</a>, <a href="matlab:properties('mmmStack')">properties</a>
 
 % Author: Robert Cudmore
 % Date: 20171014

@@ -1,39 +1,39 @@
-% mmMap - A class to load, extract, and analyze annotations in a Map Manager map.
+%mmMap - A class to load, extract, and analyze annotations in a Map Manager map.
 %
-%   To construct a mmMap object:
-%       myMap = mmMap(mapPath)
+%To construct a mmMap object:
+%    myMap = mmMap(mapPath)
 %
-%   To get a default plot struct
-%       ps = mmMap.defaultPlotStruct()
+%To get a default plot struct
+%    ps = mmMap.defaultPlotStruct()
 %
-%   mmMap Properties:
-%       mapName - Name of the map, same as enclosing folder name
-%       mapPath - Path to map folder used in constructor
-%       numChannels - Number of color channels in each stack
-%       numSessions - Number of sessions in the map
-%       numMapSegments - Number of segments in the map
-%       mapNV -  Text table of map, rows are labelled with names, columns are sessions
-%       stacks - Array of <a href="matlab:help mmStack">mmStack</a>
+%mmMap Properties:
+%    mapName - Name of the map, same as enclosing folder name
+%    mapPath - Path to map folder used in constructor
+%    numChannels - Number of color channels in each stack
+%    numSessions - Number of sessions in the map
+%    numMapSegments - Number of segments in the map
+%    mapNV -  Text table of map, rows are labelled with names, columns are sessions
+%    stacks - Array of <a href="matlab:help mmStack">mmStack</a>
 %
-%   Extract Annotations:
-%       GetMapValues(ps) - Get values of annotations from a map
-%       GetMapDynamics(ps) - Get the dynamics (add, subtract, etc.) of each annotaiton.
+%Extract Annotations:
+%    GetMapValues(ps) - Get values of annotations from a map
+%    GetMapDynamics(ps) - Get the dynamics (add, subtract, etc.) of each annotaiton.
 %
-%   Utility:
-%       find(stat, findStr) - find annotaitons with notes, errors, and warnings
-%       GetValue_NV(name, session) - Get value from a session in a map
-%       getValidStats() - Return a cell array of valid stat names
-%       isValidStat(stat) - Check if a stat is valid
+%Utility:
+%    find(stat, findStr) - find annotaitons with notes, errors, and warnings
+%    GetValue_NV(name, session) - Get value from a session in a map
+%    getValidStats() - Return a cell array of valid stat names
+%    isValidStat(stat) - Check if a stat is valid
 %
-%   Add new annotations:
-%       addUserStat(newStatName,newStatValues) - Add a new stat to a map
-%       save() - Save user stats. Please see help for important information.
+%Add new annotations:
+%    addUserStat(newStatName,newStatValues) - Add a new stat to a map
+%    save() - Save user stats. Please see help for important information.
 %
-%   Plotting:
-%       plot0 - Plot a canonical map manager map of spine position versus session.
-%       plotStat - Plot values of a stat versus sessions or days.
-%       plotStat2 - Plot a stat (or two different stat) for two different session.
-%       plotMaxProject - Plot the maximal intensity projection of a stack overlaid with tracing and annotations.
+%Plotting:
+%    plot0 - Plot a canonical map manager map of spine position versus session.
+%    plotStat - Plot values of a stat versus sessions or days.
+%    plotStat2 - Plot a stat (or two different stat) for two different session.
+%    plotMaxProject - Plot the maximal intensity projection of a stack overlaid with tracing and annotations.
 %
 % <a href="matlab:methods('mmMap')">List methods</a>, <a href="matlab:properties('mmMap')">properties</a>
 
