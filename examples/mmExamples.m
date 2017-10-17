@@ -65,7 +65,7 @@ help mmMap.defaultPlotStruct
 % See: mmPlot.plotStat()
 
 ps = mmMap.defaultPlotStruct();
-ps.stat = 'ubssSum'; % background subtracted spine sume
+ps.stat = 'ubssSum'; % background subtracted spine sum
 ps.channel = 2;
 ps = myMap.GetMapValues(ps);
 

@@ -21,7 +21,45 @@ We also have a Python package [PyMapManager][3], please see the Python [API][4].
  - mmStack - A Map Manager stack
  - mmPlot - Utility class to plot mmMap and mmStack objects.
 
-## mmMap
+## Examples
+
+#### Load a map and plot a stat
+```matlab
+    % Load a Map Manager map
+    mapPath = 'd:/Users/cudmore/MapManagerData/rr30a';
+    myMap = mmMap(mapPath);
+    
+    % Set up a plot struct and get map values to plot
+    ps = mmMap.defaultPlotStruct();
+    ps.stat = 'ubssSum'; % background subtracted spine sum
+    ps.channel = 2;
+    ps = myMap.GetMapValues(ps);
+    
+    % Make a plot
+    mmPlot.plotStat(myMap, ps);
+```
+<IMG SRC="images/matlab_figure1.png">
+	
+#### Plot a stat at different time-points (Sessions)
+```matlab
+    % To see how a stat changes over time, plot values at different sessions
+    xps = mmMap.defaultPlotStruct();
+    xps.stat = 'ubsdSum'; % background subtracted dendrite sum
+    xps.channel = 2;
+    xps.session = 2;
+    
+    yps = xps;
+    yps.session = 5;
+    
+    mmPlot.plotStat2(myMap, xps, yps);
+
+```
+<IMG SRC="images/matlab_figure2.png">
+
+
+## All classes have Matlab help
+
+### help mmMap
 ```
  mmMap - A class to load, extract, and analyze annotations in a Map Manager map.
  
@@ -60,7 +98,7 @@ We also have a Python package [PyMapManager][3], please see the Python [API][4].
      plotStat2 - Plot a stat (or two different stat) for two different session.
      plotMaxProject - Plot the maximal intensity projection of a stack overlaid with tracing and annotations.
 ```
-## mmStack
+### help mmStack
 
 ```
  mmStack - A class to load, extract, and analyze annotations in a Map Manager stack.
@@ -95,7 +133,7 @@ We also have a Python package [PyMapManager][3], please see the Python [API][4].
     save - save user annotations added with addUserStat
 ```
 
-## mmPlot
+### help mmPlot
 ```
  mmPlot  - A class to plot mmMap annotations, tracings, and images
  
