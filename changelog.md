@@ -15,7 +15,7 @@
 - mmPlot plots for ps.session now show session on x/y axis
 
 ### To Do
-- Standardize case for class methods, e.g. mmMAp.GetMapValues() to mmMap.getMApValues().
+- Standardize case for class methods, e.g. mmMap.GetMapValues() to mmMap.getMapValues().
 - Figure out why loading .tif files is so slow.
 
 
