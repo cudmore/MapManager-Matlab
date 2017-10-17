@@ -4,16 +4,16 @@
 
 Here, we provide a Matlab toolbox to load, visualize, and extend Map Manager annotations created with the Igor Pro version.
 
-We also have a Python package [PyMapManager][3], please see the Python [API][4]. 
-
 <IMG align="right" SRC="images/mmExamples_13.png" width=400 height=400>
+
+We also have a Python package [PyMapManager][3], please see the Python [API][4]. 
 
 ### Getting started
  
- - Download the [latest release][1].
- - Extract the .zip file.
- - See examples in **/examples/mmExamples.m.**
- - See the [documentation][2].
+ - Download the [latest release][1]
+ - Extract the .zip file
+ - See examples in **/examples/mmExamples.m**
+ - See the [documentation][2]
 
 ### Classes
 
@@ -42,10 +42,10 @@ We also have a Python package [PyMapManager][3], please see the Python [API][4].
  
  Extract Annotations:
      GetMapValues(ps) - Get values of annotations from a map
-     GetMapDynamics(ps) - Get the dynamics (add, subtract, etc.) of each annotaiton.
+     GetMapDynamics(ps) - Get the dynamics (add, subtract, etc.) of each annotation.
  
  Utility:
-     find(stat, findstr) - find annotaitons with notes, errors, and warnings
+     find(stat, findstr) - find annotations with notes, errors, and warnings
      GetValue_NV(name, session) - Get value from a session in a map
      getValidStats() - Return a cell array of valid stat names
      isValidStat(stat) - Check if a stat is valid
@@ -97,7 +97,7 @@ We also have a Python package [PyMapManager][3], please see the Python [API][4].
 
 ## mmPlot
 ```
- mmPlot  - Class to plot mmMap annotations, tracings, and images
+ mmPlot  - A class to plot mmMap annotations, tracings, and images
  
  Static methods
     mmPlot.mapPlot0 - Cannonical map manager map plot of pDist versus session

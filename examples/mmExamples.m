@@ -23,12 +23,18 @@
 %    mmStack : A Map Manager stack
 %    mmPlot : Utility class to plot maps and stacks
 %
-% Please see mmPlot.plotStat() for interactive plots that respond to mouse clicks.
+% Please see mmPlot for interactive plots that respond to mouse clicks.
+help mmPlot
+
+%% Getting help
+% All classes and functions have help
+help mmMap
+
 
 %% Preliminaries
 
 % Change into examples directory
-cd('/Users/cudmore/Dropbox/matlab/examples');
+cd('/Users/cudmore/Dropbox/MapManager-Matlab/examples');
 addpath('..')
 
 % Set default plot look and feel
@@ -37,25 +43,21 @@ set(0,'defaultAxesFontSize',16);
 
 
 %% Loading a map
+%
+% Load a map by specifying the full path to the map folder (not the Igor .ibw wave !)
 mapPath = 'd:/Users/cudmore/MapManagerData/Richard/rr30a'; % Windows
 mapPath = '/Users/cudmore/Dropbox/MapManagerData/richard/rr30a'; % Mac OS
 myMap = mmMap(mapPath);
 
 
-%% Getting help
-% All classes and functions have help
-help mmMap
-
-
 %% Using the default plot structure
 %
 % Throughout these examples we will use a structure to define parameters.
-% Get the default plot structure using mmMap.defaultPlotStruct().
+% Get the default plot structure using mmMap.defaultPlotStruct(). Most
+% functions take ps as as paremter and return the same ps with new fields
+% filled in.
 %
-% See: help mmMap.defaultPlotStruct()
-
-ps = mmMap.defaultPlotStruct();
-
+% See: help mmMap.defaultPlotStruct
 help mmMap.defaultPlotStruct
 
 %% Example 1, plotting one stat versus session number
@@ -101,7 +103,7 @@ help mmPlot.plotStat
 ps = mmMap.defaultPlotStruct();
 ps.stat = 'ubssSum';
 ps.channel = 2;
-ps.mapsegment = 1; % set to NaN for all
+ps.mapsegment = nan; % set to NaN for all
 ps = myMap.GetMapValues(ps);
 
 normSession = 3;
@@ -245,33 +247,39 @@ mmPlot.plot0(myMap, ps)
 %% Example 3.1, Plot added (green), subtracted (red), and transient (blue)
 %
 
-% get map dynamics
-ds = mmMap.defaultPlotStruct();
-ds = myMap.GetMapDynamics(ds);
-
-% get a map stat
 ps = mmMap.defaultPlotStruct();
 ps.stat = 'pDist'; %'ubssSum';
 ps.mapsegment = 1; % set to NaN for all
+
+% get map dynamics
+ps = myMap.GetMapDynamics(ps);
+
+% get a map stat
 ps = myMap.GetMapValues(ps);
 
 % massage some things
 [m,n] = size(ps.val); % GetMapValues() and GetMapDynamics() return the same size
 yAdd = nan(m,n);
-yAdd(ds.added==1) = ps.val(ds.added==1);
+xAdd = nan(m,n);
+yAdd(ps.added==1) = ps.val(ps.added==1);
+xAdd(ps.added==1) = ps.sessions(ps.added==1); % coud use ps.sessions and markers will not show up because they are stripped out by yAdd
 ySub = nan(m,n);
-ySub(ds.subtracted==1) = ps.val(ds.subtracted==1);
+xSub = nan(m,n);
+ySub(ps.subtracted==1) = ps.val(ps.subtracted==1);
+xSub(ps.subtracted==1) = ps.sessions(ps.subtracted==1);
 yTransient = nan(m,n);
-yTransient(ds.transient==1) = ps.val(ds.transient==1);
+xTransient = nan(m,n);
+yTransient(ps.transient==1) = ps.val(ps.transient==1);
+xTransient(ps.transient==1) = ps.sessions(ps.transient==1);
 
 % plot
 plot(ps.sessions, ps.val, 'ok', 'MarkerFaceColor', 'k', 'MarkerEdgeColor', 'k');
 hold on;
 plot(ps.sessions', ps.val', '-k');
 hold on;
-plot(ps.sessions, yAdd, 'og', 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'g');
-plot(ps.sessions,ySub,'or', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'r');
-plot(ps.sessions,yTransient,'ob', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'b');
+plot(xAdd, yAdd, 'og', 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'g');
+plot(xSub,ySub,'or', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'r');
+plot(xTransient,yTransient,'ob', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'b');
 hold off;
 xlabel('Session')
 ylabel('Segment Position (\mum)');
@@ -384,14 +392,14 @@ newStatValues = ps.val ./ mean(ps.val(~isnan(ps.val))); % ubssSum / mean(ubssSum
 newStatName = 'myNewStat';
 newStatValues = ps.val;
 
-myMap.addUserStat(newStatName, newStatValues);
+myMap.addUserStat(ps, newStatName, newStatValues);
 
 % and then plot the new stat
 ps = myMap.GetMapValues(ps);
 ps.stat = newStatName;
 myMap.plotStat(ps);
 
-% or use mmPlot class directly (most functions are static)
+% or use mmPlot class directly, the plots are clickable
 % mmPlot.plotStat(myMap, ps);
 
 % and then save

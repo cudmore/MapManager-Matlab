@@ -17,10 +17,10 @@
 %
 %Extract Annotations:
 %    GetMapValues(ps) - Get values of annotations from a map
-%    GetMapDynamics(ps) - Get the dynamics (add, subtract, etc.) of each annotaiton.
+%    GetMapDynamics(ps) - Get the dynamics (add, subtract, etc.) of each annotation.
 %
 %Utility:
-%    find(stat, findStr) - find annotaitons with notes, errors, and warnings
+%    find(stat, findStr) - find annotations with notes, errors, and warnings
 %    GetValue_NV(name, session) - Get value from a session in a map
 %    getValidStats() - Return a cell array of valid stat names
 %    isValidStat(stat) - Check if a stat is valid
@@ -107,26 +107,21 @@ classdef mmMap < handle
     methods (Static=true)
         %% defaultPlotStruct
         function ps = defaultPlotStruct()
-            % defaultPlotStruct Get a default plot struct used in plotting functions
-            %   ps = mmMap.defaultPlotStruct()
+            % defaultPlotStruct - Get a default plot struct used in plotting functions
+            %    ps = mmMap.defaultPlotStruct()
             % Returns:
-            %   ps.roitype (str) : Map Manager ROI type, one of {'spineROI', 'otherROI'}
-            %   ps.stat (str) : The name of the stat, check if name is valid with xxx()
-            %   ps.stattype (str) : '' to infer type as one of {'stackdb', 'int1', 'int2', 'int3'}
-            %   ps.channel = (int) : For int stat type, range is [1:numChannels]
-            %   ps.session = (int) : Session index [1..numSessions] for a single session, NaN for all
-            %   ps.mapsegment = (int) : Map segment index, NaN for all
-            %   ps.plotbad = false;
-            %   ps.plotintbad = false;
-            %   ps.ploterrorwarning = false;
-            % Examples:
-            %   ps = mmMap.defaultPlotStruct()
-            %   ps = myMap.defaultPlotStruct()
+            %    ps.roitype (str) : Map Manager ROI type, one of {'spineROI', 'otherROI'}
+            %    ps.stat (str) : The name of the stat, check if name is valid with xxx()
+            %    ps.stattype (str) : '' to infer type as one of {'stackdb', 'int1', 'int2', 'int3'}
+            %    ps.channel = (int) : For int stat type, range is [1:numChannels]
+            %    ps.session = (int) : Session index [1..numSessions] for a single session, NaN for all
+            %    ps.mapsegment = (int) : Map segment index, NaN for all
+            %    ps.plotbad = false;
+            %    ps.plotintbad = false;
+            %    ps.ploterrorwarning = false;
             % Notes:
-            %   - Additional fields are filled in and returnd by plot
-            %   functions GetMapValues(ps).
-            %   - This method is static and will work the same in the two
-            %   examples above.
+            %    Additional fields are filled in and returnd by plot functions.
+            %        For example, ps=myMap.GetMapValues(ps).
             
             ps.mapName = ''; % (str) : Filled in by GetMapValues()
             ps.roitype = 'spineROI'; % (str) : Map Manager ROI type, one of {'spineROI', 'otherROI'}
@@ -351,8 +346,9 @@ classdef mmMap < handle
                 valid = false;
                 type = '';
                 if haltOnError
+                   dbstack
                    error(['mmError: stat=`' stat '` is not a valid stat for map ' obj.mapName '. ' ...
-                       'Use getValidStats() to get a list of valid stats.']); 
+                       'Use getValidStats() to get a list of valid stats.']);
                 end
             end
         end
@@ -470,7 +466,17 @@ classdef mmMap < handle
             % (roiType, bad, etc)
             % todo: [done] expand this to take ps and return
             %   all dynamics (add, sub, tran, addrun, subrun)
-            [m,n] = size(obj.objectRunMap);
+            
+            % cludge to get something from GetMapValues
+            if isempty(ps.stat)
+                ps.stat = 'pDist';
+            end
+            
+            ps = obj.GetMapValues(ps);
+            [m,n] = size(ps.stackdbidx);
+            %[m,n] = size(obj.objectRunMap);
+            
+            %what we will fill in
             ps.added = nan(m,n);
             ps.addedRuns = nan(m,n);
             ps.subtracted = nan(m,n);
@@ -478,19 +484,25 @@ classdef mmMap < handle
             ps.transient = nan(m,n);
             ps.alwaysPresent = nan(m,n);
             ps.x = nan(m,n);
+            
             for i = 1:m % runs
+                setAlwaysPresent = false; %
                 isAdded = 0;
                 jSubtracted = nan;
                 for j = 1:n % sessions
-                    if isnan(obj.objectRunMap(i,j))
+                    %if isnan(obj.objectRunMap(i,j))
+                    %    continue
+                    %end
+                    if isnan(ps.stackdbidx(i,j))
                         continue
                     end
+                    
                     %case 'added'
-                    if j>1 && isnan(obj.objectRunMap(i,j-1))
+                    if j>1 && isnan(ps.stackdbidx(i,j-1))
                         ps.added(i,j) = 1;
                     end
                     %case 'added run'
-                    if j>1 && isnan(obj.objectRunMap(i,j-1))
+                    if j>1 && isnan(ps.stackdbidx(i,j-1))
                         ps.addedRuns(i,j) = 1;
                         isAdded = 1;
                     end
@@ -498,25 +510,26 @@ classdef mmMap < handle
                         ps.addedRuns(i,j) = 1;
                     end
                     %case 'subtracted'
-                    if j<n && isnan(obj.objectRunMap(i,j+1))
+                    if j<n && isnan(ps.stackdbidx(i,j+1))
                         ps.subtracted(i,j) = 1;
                     end
                     %case 'subtracted run'
-                    if j<n && isnan(obj.objectRunMap(i,j+1))
+                    if j<n && isnan(ps.stackdbidx(i,j+1))
                         ps.subtractedRuns(i,j) = 1;
                         jSubtracted = j;
                     end
                     %case 'transient'
-                    if j>1 && j<n && isnan(obj.objectRunMap(i,j-1)) && isnan(obj.objectRunMap(i,j+1))
+                    if j>1 && j<n && isnan(ps.stackdbidx(i,j-1)) && isnan(ps.stackdbidx(i,j+1))
                         ps.transient(i,j) = 1;
                         % break
                     end
                     %case 'always present'
-                    if isnan(obj.objectRunMap(i,j))
+                    if isnan(ps.stackdbidx(i,j))
                         % not 'always present'
-                        ps.alwaysPresent(i,:) = 0;
-                        break
-                    else
+                        ps.alwaysPresent(i,:) = NaN;
+                        setAlwaysPresent = true;
+                        %break
+                    elseif ~setAlwaysPresent
                         ps.alwaysPresent(i,j) = 1;
                     end
                     if ~isnan(jSubtracted) %&& cmpstr(thisType,'subtracted run')
@@ -527,12 +540,6 @@ classdef mmMap < handle
             end % i = 1:m runs
         end
         
-        % todo: this will get logical arrays for valid stat based on ps
-        %   use this within getmapvalues and getmapdynamics
-        function GetMapObjects(obj, ps)
-        
-        end
-    
         %% GetMapValuesCond
         function condMean = GetMapValuesCond(obj, ps, theCond)
         %
@@ -572,15 +579,15 @@ classdef mmMap < handle
     
         %% GetMapValues
         function ps = GetMapValues(obj, ps)
-        %GetMapValues Get values of annotations from a map.
+        %GetMapValues - Get values of annotations from a map.
         %   Syntax:
         %       ps = myMap.GetMapValues(ps)
         %   Parameters:
         %       ps (Struct) : Use mmMap.defaultPlotStruct() to get template
-        %       ps.roitype (str) :
-        %       ps.stat (str) : 
-        %       ps.channel (int) : Uses for stat type 'int'
-        %       ps.mapSegment (int) :
+        %       ps.roitype (str) : 'spineROI' | 'otherROI'
+        %       ps.stat (str) : A stat name. Get valid stats with myMap.getValidStats()
+        %       ps.channel (int) : Use this for stat type 'int'
+        %       ps.mapSegment (int) : 1..myMap.numMapSegment
         %       ps.plotBad (boolean) :
         %       ps.plotintbad (boolean) :
         %       ps.ploterrorwarning (boolean) :
@@ -625,11 +632,11 @@ classdef mmMap < handle
             runIdx = 7;
             
             % todo: put this into function_
-            if ps.stattype
-                stattype = ps.stattype;
-            else
-                stattype = obj.getStatType_(ps.stat, 1);
-            end
+            %if ps.stattype
+            %    stattype = ps.stattype;
+            %else
+            %    stattype = obj.getStatType_(ps.stat, 1);
+            %end
                 
             stack_ps = ps;
             colIdx_lhs = 1;
@@ -658,11 +665,27 @@ classdef mmMap < handle
                 
                 colIdx_lhs = colIdx_lhs + 1;
             end % j sessions
+            
+            % strip out nan rows
+            % causes problems if we are reducing to one session
+            % see: https://www.mathworks.com/matlabcentral/answers/68510-remove-rows-or-cols-whose-elements-are-all-nan
+            %out = A(all(~isnan(A),2),:); % for nan - rows
+            %out = A(:,all(~isnan(A)));   % for nan - columns
+            if isnan(ps.session)
+                % this form seems to remove rows that are all nan
+                %ps.stackdbidx(any(~isnan(ps.stackdbidx),2),:)
+                ps.val = ps.val(any(~isnan(ps.stackdbidx),2),:);
+                ps.sessions = ps.sessions(any(~isnan(ps.stackdbidx),2),:);
+                ps.days = ps.days(any(~isnan(ps.stackdbidx),2),:);
+                ps.stackdbidx = ps.stackdbidx(any(~isnan(ps.stackdbidx),2),:);
+            end
+            
         end % GetMapValues
         
         function [retVal,retVec] = segmentanalysis(obj, ps, f)
-        % Call function f for each map segment
-        % See segmentStats.m and mysegfun.m for examples
+        %segmentanalysis - Call a function for each map segment
+        %    [retVal, retVec] = myMap.segmentanalysis(ps, 'myFunction');
+        %See segmentStats.m and mysegfun.m for examples of 'myFunction'.
             if ~exist(f, 'file')
                 error(['mmMap.segmentanalysis() did not find .m file for function `' f '`'])
             end
@@ -698,27 +721,28 @@ classdef mmMap < handle
         end
 
         %% addUserStat
-        function addUserStat(obj, newStatName, newStatValues)
-        % Add a user stat to map
-        %   myMap = myMap.addUserStat(newStatName, newStatValues)
+        function addUserStat(obj, ps, newStatName, newStatValues)
+        % addUserStat - Add a user stat to map
+        %   myMap.addUserStat(ps, newStatName, newStatValues)
         % Arguments:
+        %   ps (plot struct) : 
         %   newStatName (str) : Name of stat to add
         %   newStatValues (2D matrix of float) : Same shape as ps.val
         % Returns:
-        %   Assigns obj.stacks(j).userstat{:}(:,{stat})
+        %   Assigns obj.stacks(:).userstat(:,{stat})
         % Example:
         %   ps = mmMap.defaultPlotStruct();
         %   ps.stat = 'pDist';
         %   ps = obj.GetMapValues(ps);
         %   newStatName = 'myNewStat';
         %   newStatValues = ps.val + 100;
-        %   myMap.addUserStat(newStatName, newStatValues)        
+        %   myMap.addUserStat(ps, newStatName, newStatValues)        
         
-            % todo: make sure newStatValues is correct shape
+            % todo: error check newStatValues for correct shape
             
             for j = 1:obj.numSessions
-                goodCol_map = ~isnan(obj.objectRunMap(:,j));
-                theseIndices_stack = obj.objectRunMap(goodCol_map,j);
+                goodCol_map = ~isnan(ps.stackdbidx(:,j));
+                theseIndices_stack = ps.stackdbidx(goodCol_map,j);
                 % make values for stack
                 mStack = obj.stacks(j).numAnnotations;
                 theseValues = nan(mStack,1);
@@ -731,12 +755,12 @@ classdef mmMap < handle
 %todo: also save mapNV so user can update condition
         %% save
         function save(obj)
-        % Save user annotations
-        %   This saves a userstat.txt for each session in map
-        %   Each user stat will be loaded the next time the map is loaded
+        % save - Save user annotations
+        %   This saves a /stackdb/userstat.txt file for each session in map
+        %   User stats will be loaded the next time the map is loaded
         %
         %   IMPORTANT: If you save user stats and then add/delete annotations
-        %       in Igor Map Manager, your Matlab saved user stats will no longer
+        %       in Igor Pro - Map Manager, your Matlab saved user stats will no longer
         %       be valid and need to be regerated again with addUserStat().
             for j = 1:obj.numSessions
                 obj.stacks(j).save();
@@ -745,9 +769,10 @@ classdef mmMap < handle
         
         %% find
         function t = find(obj, stat, findStr)
-        % Find findStr in stack stat 'notes', 'error', 'warning'
-        % Returns:
-        %   t (table) : A table of matching annotations
+        %find - Find a string in mmStack 'notes', 'error', 'warning'
+        %    t = myMap.find('note', '*');
+        %Returns:
+        %    t (table) : A table of matching annotations
         
             % todo: this should take ps, build a 2d object map hit matrix and then pass back ps.hits(m,n) of hits
             t = table();
@@ -767,7 +792,7 @@ classdef mmMap < handle
         
 %% Plot functions using mmPlot class
         function ps = plot0(obj,ps)
-        % Plot a canonical map manager map of spine position versus session
+        % plot0 - Plot a canonical map manager map of spine position versus session
         %   ps = myMap.plot0(ps);
         % Note:
         %   This plot is interactive, user clicks will display annotation
@@ -776,7 +801,7 @@ classdef mmMap < handle
         end
         
         function ps = plotStat(obj, ps, vargin)
-        % Plot a stat versus sessions
+        % plotStat - Plot a stat versus sessions
         %   ps = myMap.plotStat(ps);
             if exist('vargin','var')
                 ps = mmPlot.plotStat(obj, ps, vargin);
@@ -786,13 +811,13 @@ classdef mmMap < handle
         end
 
         function ps = plotStat2(obj, xps, yps)
-        % plot two stats x and y
+        % plotStat2 - Plot two stats x and y
         %   ps = myMap.plotStat2(xps, yps);
             ps = mmPlot.plotStat2(obj, xps, yps);
         end
 
         function plotMaxProject(obj, session, channel)
-        % Plot maximum projection and overlay tracing and annotations
+        % plotMaxProject - Plot maximum projection and overlay tracing and annotations
         %   myMap.plotMaxProject(Session, channel);
             stacksegment = NaN;
             showAnnotations = true;

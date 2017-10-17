@@ -1,4 +1,4 @@
-%mmPlot  - Class to plot <a href="matlab:help mmMap">mmMap</a> annotations, tracings, and images
+%mmPlot  - A class to plot <a href="matlab:help mmMap">mmMap</a> annotations, tracings, and images
 %
 %Static methods
 %   mmPlot.mapPlot0 - Cannonical map manager map plot of pDist versus session
@@ -20,7 +20,7 @@ classdef mmPlot < handle
     
     methods (Static=true)
         function ps = plot0(theMap, ps)
-            % mapPlot0 - Cannonical map manager map plot of pDist versus session
+            % plot0 - Cannonical map manager map plot of pDist versus session
             %   h = mmPlot.mapPlot0(theMap, ps);
             % Parameters:
             %    mapSegment (int) : NaN for all
@@ -130,15 +130,21 @@ classdef mmPlot < handle
             %hold on;
             markers = plot(xps.val(:), yps.val(:),'ok', 'HitTest', 'on');
             %hold off;
-            ylabel([yps.stat ' ch' num2str(yps.channel)]);
-            xlabel([xps.stat ' ch' num2str(xps.channel)]);
+            if ~isnan(xps.session)
+                xSessionStr = [' Session ' num2str(xps.session)];
+            end
+            if ~isnan(yps.session)
+                ySessionStr = [' Session ' num2str(yps.session)];
+            end
+            ylabel([yps.stat ' ch' num2str(yps.channel) ySessionStr]);
+            xlabel([xps.stat ' ch' num2str(xps.channel) xSessionStr]);
 
             mmPlot.installSelection_(theMap, fig, yps, xps.val, yps.val);
             
         end
         
         function installSelection_(theMap, fig, ps, xVal, yVal)
-        % set up click selection of run
+        % Set up click selection of run
             xRunSel = NaN(1,theMap.numSessions);
             yRunSel = NaN(1,theMap.numSessions);
             hold on;
