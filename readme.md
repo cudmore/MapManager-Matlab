@@ -2,11 +2,11 @@
 
 [Map Manager][5] is a program to annotate 3D image time-series. It provides a rich user-interface to create, curate, and visualize 3D annotations. Map Manager is written in Igor Pro and conveniently saves all annotations as plain text.
 
+<IMG align="right" SRC="images/mmExamples_13.png" width=400 height=400>
+
 Here, we provide a Matlab toolbox to load, visualize, and extend Map Manager annotations created with the Igor Pro version.
 
 We also have a Python package [PyMapManager][3], please see the Python [API][4]. 
-
-<IMG align="right" SRC="images/mmExamples_13.png" width=400 height=400>
 
 ### Getting started
  
