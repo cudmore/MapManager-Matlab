@@ -47,6 +47,7 @@ set(0,'defaultAxesFontSize',16);
 % Load a map by specifying the full path to the map folder (not the Igor .ibw wave !)
 mapPath = 'd:/Users/cudmore/MapManagerData/Richard/rr30a'; % Windows
 mapPath = '/Users/cudmore/Dropbox/MapManagerData/richard/rr30a'; % Mac OS
+mapPath = 'exampleMaps/rr30a'; % Mac OS
 myMap = mmMap(mapPath);
 
 

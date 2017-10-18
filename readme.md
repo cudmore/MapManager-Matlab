@@ -23,30 +23,30 @@ We also have a Python package [PyMapManager][3], please see the Python [API][4].
 
 ## Examples
 
-#### Load a map and plot a stat
+#### Load a map
 
 ```matlab
-% Load a Map Manager map
-mapPath = 'd:/Users/cudmore/MapManagerData/rr30a';
+mapPath = 'exampleMaps/rr30a';
 myMap = mmMap(mapPath);
+```
 
-% Set up a plot struct and get map values to plot
+#### Plot a stat versus imaging session
+
+```matlab
+% Set up a plot struct to tell mmMap what to plot
 ps = mmMap.defaultPlotStruct();
 ps.stat = 'ubssSum'; % background subtracted spine sum
 ps.channel = 2;
-ps = myMap.GetMapValues(ps);
 
-% Make a plot
+% Plot
 mmPlot.plotStat(myMap, ps);
 ```
 <IMG SRC="images/matlab_figure1.png">
 
 	
-#### Plot a stat at different time-points (Sessions)
+#### Plot a stat at different imaging sessions
 
 ```matlab
-% To see how a stat changes over time
-% plot values at different sessions
 xps = mmMap.defaultPlotStruct();
 xps.stat = 'ubsdSum'; % background subtracted dendrite sum
 xps.channel = 2;
@@ -57,6 +57,7 @@ yps.session = 5;
 
 mmPlot.plotStat2(myMap, xps, yps);
 ```
+
 <IMG SRC="images/matlab_figure2.png">
 
 
