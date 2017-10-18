@@ -44,7 +44,7 @@ myMapList(2).mapNV('condStr',3) = {'c2'};
 myMapList(2).mapNV('condStr',5) = {'e1'};
 myMapList(2).mapNV('condStr',6) = {'e2'};
 
-%% put together a map pool based on condStr
+%% put together a map pool based on a list of session conditions, myCondList
 myCondList = {'c*', 'c2', 'e*'};
 myStat = 'ubssSum';
 myChannel = 2;

@@ -309,11 +309,11 @@ help dopool
 ps = mmMap.defaultPlotStruct();
 ps.stat = 'ubssSum';
 ps.channel = 2;
-% The segmentanalysis() function will call segmentstats.m for each segment
+% The segmentAnalysis() function will call segmentstats.m for each segment
 % in the map.
 %
 % In this case there are 45 segments!
-mySegmentStats = myMap.segmentanalysis(ps, 'segmentStats');
+mySegmentStats = myMap.segmentAnalysis(ps, 'segmentStats');
 
 % plot results
 for i = 1:myMap.numMapSegments

@@ -20,24 +20,53 @@ classdef mmPlot < handle
     
     methods (Static=true)
         function ps = plot0(theMap, ps)
-            % plot0 - Cannonical map manager map plot of pDist versus session
-            %   h = mmPlot.mapPlot0(theMap, ps);
-            % Parameters:
-            %    mapSegment (int) : NaN for all
+        % plot0 - Cannonical map manager map plot of spine position versus session
+        %   ps = mmPlot.mapPlot0(theMap, ps);
+        % Parameters:
+        %    ps.mapsegment (int) : NaN for all
             
             % get the stat values
             ps.stat = 'pDist';
+
+            % get map dynamics
+            ps = theMap.GetMapDynamics(ps);
+            
+            % get a map stat
             ps = theMap.GetMapValues(ps);
+            
+            % massage some things for added/subracted/transient
+            [m,n] = size(ps.val); % GetMapValues() and GetMapDynamics() return the same size
+            yAdd = nan(m,n);
+            xAdd = nan(m,n);
+            yAdd(ps.added==1) = ps.val(ps.added==1);
+            xAdd(ps.added==1) = ps.sessions(ps.added==1); % coud use ps.sessions and markers will not show up because they are stripped out by yAdd
+            ySub = nan(m,n);
+            xSub = nan(m,n);
+            ySub(ps.subtracted==1) = ps.val(ps.subtracted==1);
+            xSub(ps.subtracted==1) = ps.sessions(ps.subtracted==1);
+            yTransient = nan(m,n);
+            xTransient = nan(m,n);
+            yTransient(ps.transient==1) = ps.val(ps.transient==1);
+            xTransient(ps.transient==1) = ps.sessions(ps.transient==1);
             
             % plot
             fig = figure;
-            lines = plot(ps.sessions',ps.val','-k', 'HitTest', 'off');
+            % lines
+            plot(ps.sessions',ps.val','-k', 'HitTest', 'off');
             hold on;
-            markers = plot(ps.sessions(:),ps.val(:),'ok', 'HitTest', 'on');
+            % black markers
+            plot(ps.sessions(:),ps.val(:),'ok');
+            % added
+            plot(xAdd(:), yAdd(:), 'og', 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'g');
+            % subtracted
+            plot(xSub(:),ySub(:),'or', 'MarkerFaceColor', 'r', 'MarkerEdgeColor', 'r');
+            % transient
+            plot(xTransient(:),yTransient(:),'ob', 'MarkerFaceColor', 'b', 'MarkerEdgeColor', 'b');
             hold off;
             xlabel('Sessions');
             ylabel('Segment Position (\mum)');
-        
+                    
+            % activate feedback on mouse-click
             mmPlot.installSelection_(theMap, fig, ps, ps.sessions, ps.val);
         end
         
@@ -45,7 +74,7 @@ classdef mmPlot < handle
         % plotStat - Plot a map stat versus session or days
         %   ps = mmPlot.plotStat(theMap, ps);
         % Parameters:
-        %   theMap (mmMap object) :
+        %   theMap (mmMap) :
         %   ps (struct) : mmMap plot struct
         % Optional parameters
         %   'Norm' (str) : '%' | 'Abs'
@@ -162,11 +191,54 @@ classdef mmPlot < handle
             ds.xVal = xVal; %xps.val;
             ds.yVal = yVal; %yps.val;
 
+            % not done
+            mmFig.ps = ps;
+            mmFig.ds = ds;
+            fig.UserData = mmFig;
+            
+            % cannot coexist with 'datacursormode on'
+            set(fig,'KeyPressFcn',@mmPlot.KeyPressCallback);
+
             % set up user click interface
             %markers.UserData = ps;
             dcm_obj = datacursormode(fig);
             set(dcm_obj,'UpdateFcn',{@mmPlot.myupdatefcn2_, ps, ds});
+        
             datacursormode on;
+        end
+        
+            function y = KeyPressCallback(~,event)
+                disp('** KeyPressCallback');
+                event
+            end
+            
+            function selectSpine(theMap, session, stackdbIdx)
+        % playing with idea to propogate a selection to all open figures
+            
+            % get all open figures
+            figHandles = get(groot, 'Children');
+            mFig = length(figHandles);
+            for i = 1:mFig
+                if isfield(figHandles(i).UserData, 'ps')
+                    disp(['fig ' num2str(i) ' map:' figHandles(i).UserData.ps.mapName]);
+                end
+            end
+            
+            f = gcf;
+            ps = f.UserData.ps;
+            ds = f.UserData.ds;
+            
+            % i need something like objectMap to tell me,
+            % spine(idx,session) -->> row index in plot
+            
+            runidx = 20;
+            xRun = ds.xVal(runidx,:);
+            yRun = ds.yVal(runidx,:);
+            ds.runSelMarker.XData = xRun;
+            ds.runSelMarker.YData = yRun;
+            ds.runSelLine.XData = xRun;
+            ds.runSelLine.YData = yRun;
+            
         end
         
         % this is callback function from mmPlot
@@ -174,7 +246,7 @@ classdef mmPlot < handle
             % ps (struct) : plot struct
             % ds (struct) : display struct
             
-            %disp('*** in myupdatefcn2_')
+            disp('*** in myupdatefcn2_')
             
             %pos = get(event_obj,'Position');
             %txt = {['my x: ',num2str(pos(1))],...
@@ -207,6 +279,9 @@ classdef mmPlot < handle
                 ['val:', num2str(val)], ...
                 ['session:', num2str(session)], ...
                 ['stackidx:', num2str(stackdbidx)]};
+            
+            disp('myupdatefcn2_ done');
+            
         end
     
         function h = mapPlotCondition(theMap, stat, channel, conditionList)

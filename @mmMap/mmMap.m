@@ -70,16 +70,6 @@ classdef mmMap < handle
 
         stacks = mmStack.empty; % array of mmStack, one per numSessions
         
-        % Each row gives stack db centric indices of connected run of annotations.
-        % Columns are sessions.
-        % objectRunMap(i,j) gives stack db centric index of spine in session j.
-        % Number of runs (rows) has no intrinsic meaning, it is dependent on
-        % how objects are connected (e.g. their dynamics).
-        objectRunMap
-        
-        % Same story as objectRunMap but gives information for connectivity
-        % of segments.
-        segmentRunMap
     end
     
     %% Hidden properties
@@ -93,7 +83,20 @@ classdef mmMap < handle
         stackdbTokens %
         intTokens %
         userTokens
-    end
+
+        % Each row gives stack db centric indices of connected run of annotations.
+        % Columns are sessions.
+        % objectRunMap_(i,j) gives stack db centric index of spine in session j.
+        % Number of runs (rows) has no intrinsic meaning, it is dependent on
+        % how objects are connected (e.g. their dynamics).
+        objectRunMap_
+        objectRunMap % placeholder so user can use get.objectRunMap but NOT set.objectRunMap
+        
+        % Same story as objectRunMap_ but gives information for connectivity
+        % of segments.
+        segmentRunMap_
+        segmentRunMap % placeholder for user to use get. set.
+end
     
     %% Hidden constant properties
     properties (Hidden=true, Constant)
@@ -161,8 +164,8 @@ classdef mmMap < handle
             %dp('numMapSegments', '%d', obj.numMapSegments);
             dp('mapNV', '[%dx%d table]', size(obj.mapNV,1), size(obj.mapNV,2));
             dp('stacks', '[1x%d <a href="matlab:help mmStack">mmStack</a>]', numel(obj.stacks));
-            dp('objectRunMap', '[%dx%d int]', size(obj.objectRunMap,1), size(obj.objectRunMap,2));
-            dp('segmentRunMap', '[%dx%d int]', size(obj.segmentRunMap,1), size(obj.segmentRunMap,2));
+            dp('objectRunMap', '[%dx%d int]', size(obj.objectRunMap_,1), size(obj.objectRunMap_,2));
+            dp('segmentRunMap', '[%dx%d int]', size(obj.segmentRunMap_,1), size(obj.segmentRunMap_,2));
 
             fprintf('\n');
             disp('  <a href="matlab:methods(''mmMap'')">Methods</a>, <a href="matlab:properties(''mmMap'')">Properties</a>');
@@ -233,7 +236,7 @@ classdef mmMap < handle
             mapfilepath = [obj.mapPath '/' obj.mapName '_objMap.txt'];
             if exist(mapfilepath, 'file') == 2
                 [obj.objectMap, obj.objectMapPages] = obj.loadMapFile_(mapfilepath);
-                obj.objectRunMap = obj.makeRunMap_(obj.objectMap, 'spineROI', 1, 1);
+                obj.objectRunMap_ = obj.makeRunMap_(obj.objectMap, 'spineROI', 1, 1);
             else
                 error(['mmMap did not find object map:' mapfilepath])
             end
@@ -242,8 +245,8 @@ classdef mmMap < handle
             mapfilepath = [obj.mapPath '/' obj.mapName '_segMap.txt'];
             if exist(mapfilepath, 'file') == 2
                 [obj.segmentMap, obj.segmentMapPages] = obj.loadMapFile_(mapfilepath);
-                obj.segmentRunMap = obj.makeRunMap_(obj.segmentMap, '', 0, 0);
-                %obj.numSegments = size(obj.segmentRunMap,1);
+                obj.segmentRunMap_ = obj.makeRunMap_(obj.segmentMap, '', 0, 0);
+                %obj.numSegments = size(obj.segmentRunMap_,1);
             end
             
             loadTime = etime(clock,startTime);
@@ -261,8 +264,8 @@ classdef mmMap < handle
         end
         
         function numMapSegments = get.numMapSegments(obj)
-            if ~isempty(obj.segmentRunMap)
-                numMapSegments = size(obj.segmentRunMap,1);
+            if ~isempty(obj.segmentRunMap_)
+                numMapSegments = size(obj.segmentRunMap_,1);
             else
                numMapSegments = 0;
             end
@@ -301,8 +304,21 @@ classdef mmMap < handle
             end
         end
         
-        % todo: finish this function, return validTypes and add user analysis
+        function objectRunMap = get.objectRunMap(obj)
+            objectRunMap = obj.objectRunMap_;
+        end
+        function set.objectRunMap(obj, val)
+            warning('mmMap.objectRunMap cannot be set.');
+        end
+        function segmentRunMap = get.segmentRunMap(obj)
+            segmentRunMap = obj.segmentRunMap_;
+        end
+        function set.segmentRunMap(obj, val)
+            warning('mmMap.segmentRunMap cannot be set.');
+        end
+        
         %% validStats
+        % todo: finish this function, return validTypes and add user analysis
         function [validStats, validTypes] = getValidStats(obj)
         % Return a cell array of valid stat names
         
@@ -611,7 +627,7 @@ classdef mmMap < handle
             
             ps.mapName = obj.mapName;
             
-            [m,n] = size(obj.objectRunMap);
+            [m,n] = size(obj.objectRunMap_);
             
             % if ps.session then limit to one column
             startSession = 1;
@@ -637,14 +653,17 @@ classdef mmMap < handle
             %else
             %    stattype = obj.getStatType_(ps.stat, 1);
             %end
-                
+            
+            % reverse lookup stack index -> run index
+            reverseLookup = nan(size(obj.objectMap,1),size(obj.objectMap,2));
+            
             stack_ps = ps;
             colIdx_lhs = 1;
             for j = startSession:stopSession % sessions
                 % convert map centric ps.mapsegment into stack centic stackSegment
                 stackSegment = NaN;
                 if ~isnan(ps.mapsegment)
-                    stackSegment = obj.segmentRunMap(ps.mapsegment,j);
+                    stackSegment = obj.segmentRunMap_(ps.mapsegment,j);
                     if isnan(stackSegment)
                         % No corresponding segment in j'th stack
                         continue;
@@ -655,6 +674,10 @@ classdef mmMap < handle
                 % main engine to get annotations from stack
                 stack_ps = getStackValues(obj.stacks(j), stack_ps);
                 
+                % make a reverse lookup same size as objectMap
+                % use  in plot callbacks, given a stack index -> run index
+                reverseLookup(stack_ps.stackdbidx,j) = obj.objectMap(stack_ps.stackdbidx,j,obj.kRunIdx);
+                
                 final_lhs = obj.objectMap(stack_ps.stackdbidx,j,runIdx);
                                                 
                 % assign return values
@@ -662,6 +685,7 @@ classdef mmMap < handle
                 ps.sessions(final_lhs,colIdx_lhs) = j;
                 ps.days(final_lhs,colIdx_lhs) = str2num(obj.GetValue_NV('days',j));
                 ps.stackdbidx(final_lhs,colIdx_lhs) = stack_ps.stackdbidx;
+                ps.reverseLookup = reverseLookup;
                 
                 colIdx_lhs = colIdx_lhs + 1;
             end % j sessions
@@ -682,12 +706,12 @@ classdef mmMap < handle
             
         end % GetMapValues
         
-        function [retVal,retVec] = segmentanalysis(obj, ps, f)
-        %segmentanalysis - Call a function for each map segment
-        %    [retVal, retVec] = myMap.segmentanalysis(ps, 'myFunction');
+        function [retVal,retVec] = segmentAnalysis(obj, ps, f)
+        %segmentAnalysis - Call a function for each map segment
+        %    [retVal, retVec] = myMap.segmentAnalysis(ps, 'myFunction');
         %See segmentStats.m and mysegfun.m for examples of 'myFunction'.
             if ~exist(f, 'file')
-                error(['mmMap.segmentanalysis() did not find .m file for function `' f '`'])
+                error(['mmMap.segmentAnalysis() did not find .m file for function `' f '`'])
             end
             
             fnReference = str2func(f);
@@ -707,7 +731,7 @@ classdef mmMap < handle
                 pDist_ps = obj.GetMapValues(pDist_ps); % pDist
                 
                 for j = 1:obj.numSessions
-                    stackdbSegment = obj.segmentRunMap(i,j);
+                    stackdbSegment = obj.segmentRunMap_(i,j);
                     if isnan(stackdbSegment)
                         % no stack centric segment at session j
                         continue

@@ -1,23 +1,35 @@
-% Example protoype function to be passed to mmMAp.segmentAnalysis()
-%   Write your own and return
-%   retVal : A single number for each segment
-%       Can be a struct as in this example
-%   retVec : 
+% Example protoype function to be passed to mmMap.segmentAnalysis(ps, f)
+%   Write your own and return answers for each segment
+%       retVal : A scalar or struct
+%       retVec : 
 %
 % Example Usage:
+%   % Load a map
 %   myPath = '/path/to/map/manager/map/folder';
 %   myMap = mmMap(myPath);
 %
+%   % Set up what to analyze
+%   ps = mmMap.defaultPlotStruct();
+%   ps.stat = 'ubssSum';
+%   ps.channel = 2;
+%
+%   % Specify your own function
 %   myFunction = 'segmentStats'; % in this example there needs to be a .m file segmentStats.m 
-%   myStat = 'ubssSum'
-%   myChannel = 2;
-%   mySegmentStats = myMap.segmentanalysis(myMap, myStat, myChannel, myFunction)
 %
-% mySegmentStats is (myMap.numSegments,myMap.numSessions) matrix
-% where mySegmentStats(i,j) is retVal returned from @segmentStats
+%   % call myMap.segmentAnalysis()
+%   % This will call myFunction for each segment controlled by ps
+%   % For example, if you specify ps.mapSegment=1 then myFunction
+%   %   will be called for mapSegment 1 across all sessions.
+%   % The default, ps.mapSegment=NaN will call myFunction for all segments in the map.
 %
-% In this example, retVal is a struct containing statistics for 'ubssSum'
-%   for each segment.
+%   mySegmentStats = myMap.segmentAnalysis(ps, myFunction)
+%
+%   % mySegmentStats is now a (myMap.numSegments,myMap.numSessions) matrix
+%   % Where mySegmentStats(i,j) is retVal returned from @segmentStats
+%   %   function.
+%
+%   %In this example, retVal is a struct containing statistics for 'ubssSum'
+%   %    for each segment.
 
 % Author: Robert Cudmore
 % Date: 20171008
