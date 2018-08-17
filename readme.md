@@ -152,4 +152,4 @@ mmPlot.plotStat2(myMap, xps, yps);
 [2]: http://htmlpreview.github.io/?https://github.com/cudmore/MapManager-Matlab/blob/master/docs/mmExamples.html
 [3]: https://github.com/cudmore/PyMapManager
 [4]: http://blog.cudmore.io/PyMapManager/
-[5]: http://blog.cudmore.io/mapmanager/
+[5]: https://mapmanager.github.io/
